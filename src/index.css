@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 160 20% 97%;
+    --foreground: 200 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 25% 10%;
+
+    --primary: 168 60% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 30% 92%;
+    --secondary-foreground: 168 60% 28%;
+
+    --muted: 160 15% 93%;
+    --muted-foreground: 200 10% 45%;
+
+    --accent: 142 50% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 160 15% 88%;
+    --input: 160 15% 88%;
+    --ring: 168 60% 38%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 168 30% 12%;
+    --sidebar-foreground: 160 15% 90%;
+    --sidebar-primary: 168 60% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 168 30% 18%;
+    --sidebar-accent-foreground: 160 15% 90%;
+    --sidebar-border: 168 20% 20%;
+    --sidebar-ring: 168 60% 48%;
+
+    /* Custom tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(168, 60%, 38%), hsl(142, 50%, 45%));
+    --gradient-hero: linear-gradient(135deg, hsl(168, 30%, 8%), hsl(168, 40%, 16%));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%), hsl(160, 20%, 97%));
+    --shadow-card: 0 4px 24px -4px hsl(168 30% 30% / 0.08);
+    --shadow-elevated: 0 12px 40px -8px hsl(168 30% 30% / 0.15);
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 70% 40%;
+    --success-foreground: 0 0% 100%;
+    --info: 205 80% 50%;
+    --info-foreground: 0 0% 100%;
+
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .dark {
+    --background: 200 25% 6%;
+    --foreground: 160 15% 93%;
+    --card: 200 20% 10%;
+    --card-foreground: 160 15% 93%;
+    --popover: 200 20% 10%;
+    --popover-foreground: 160 15% 93%;
+    --primary: 168 60% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 168 20% 15%;
+    --secondary-foreground: 160 15% 90%;
+    --muted: 200 15% 15%;
+    --muted-foreground: 200 10% 55%;
+    --accent: 142 50% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 200 15% 18%;
+    --input: 200 15% 18%;
+    --ring: 168 60% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer components {
+  .health-card {
+    @apply rounded-xl border bg-card p-6 shadow-card transition-all duration-300 hover:shadow-elevated;
+  }
+  .health-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+  }
+}
+
+/* Hide scrollbars on mobile while keeping scroll functional */
+@media (max-width: 767px) {
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  *::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+}

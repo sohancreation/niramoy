@@ -1,0 +1,22 @@
+project_id = "vgquktpjnkxjnenbluif"
+
+[functions.ai-health-suggestions]
+verify_jwt = false
+
+[functions.health-chat]
+verify_jwt = false
+
+[functions.ai-remedy-suggest]
+verify_jwt = false
+
+[functions.analyze-prescription]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.validate-coupon]
+verify_jwt = false
+
+[functions.mindcare-chat]
+verify_jwt = false

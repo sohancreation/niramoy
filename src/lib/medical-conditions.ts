@@ -1,0 +1,18 @@
+export const MEDICAL_CONDITIONS = [
+  { value: 'diabetes', label: { en: 'Diabetes', bn: 'ডায়াবেটিস' } },
+  { value: 'hypertension', label: { en: 'Hypertension', bn: 'উচ্চ রক্তচাপ' } },
+  { value: 'asthma', label: { en: 'Asthma', bn: 'অ্যাজমা' } },
+  { value: 'heart_disease', label: { en: 'Heart Disease', bn: 'হৃদরোগ' } },
+  { value: 'thyroid', label: { en: 'Thyroid Disorder', bn: 'থাইরয়েড' } },
+  { value: 'arthritis', label: { en: 'Arthritis', bn: 'বাতের ব্যথা' } },
+  { value: 'kidney_disease', label: { en: 'Kidney Disease', bn: 'কিডনি রোগ' } },
+  { value: 'liver_disease', label: { en: 'Liver Disease', bn: 'লিভারের রোগ' } },
+  { value: 'obesity', label: { en: 'Obesity', bn: 'স্থূলতা' } },
+  { value: 'allergy', label: { en: 'Allergies', bn: 'অ্যালার্জি' } },
+  { value: 'migraine', label: { en: 'Migraine', bn: 'মাইগ্রেন' } },
+  { value: 'gastric', label: { en: 'Gastric/Ulcer', bn: 'গ্যাস্ট্রিক/আলসার' } },
+  { value: 'depression', label: { en: 'Depression/Anxiety', bn: 'বিষণ্নতা/উদ্বেগ' } },
+  { value: 'pcos', label: { en: 'PCOS', bn: 'পিসিওএস' } },
+  { value: 'anemia', label: { en: 'Anemia', bn: 'রক্তস্বল্পতা' } },
+  { value: 'none', label: { en: 'None', bn: 'কিছু নেই' } },
+];
