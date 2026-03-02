@@ -1,73 +1,78 @@
-# Welcome to your Lovable project
+# Niramoy AI - Your Personal Health & Wellness Companion
 
-## Project info
+Niramoy AI is an emotional wellness and health tracking application built with React, Vite, Tailwind CSS, and Supabase. It provides personalized diet planning, fitness tracking, voice-enabled mental care (health chat & voice consulting), verified home remedies, and gamification to keep users engaged and motivated. This project is optimized for both web and mobile experiences.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Personalized Health Tracking**: Monitor daily tasks including water intake, medication adherence, diet plans, and exercises.
+- **AI-Powered Mental Wellness Chat**: Includes intelligent chatbots fine-tuned for health queries and mental wellness interactions.
+- **Voice Consultations**: A direct real-time communication channel to get remote care advice.
+- **Home Remedies & Prescription Scanning**: Specialized tools for analyzing uploaded prescriptions and suggesting verified natural remedies via AI.
+- **Gamification & Family Mode**: Share progress with loved ones using Family Mode, complete health quests, and unlock badges for achieving wellness goals.
+- **Multilingual Support**: Fully localized in English and Bengali to reach a wider user base.
 
-There are several ways of editing your application.
+## Technology Stack
 
-**Use Lovable**
+### Frontend
+- **React**: Modern component-based view library.
+- **TypeScript**: Strict typing for increased maintainability.
+- **Vite**: Ultra-fast build tool and development server.
+- **Tailwind CSS & shadcn/ui**: For beautifully designed, accessible, and highly responsive user interfaces.
+- **React Router**: For seamless single-page application (SPA) routing.
+- **React Query (Tanstack)**: Handling remote data state and caching.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Backend
+- **Supabase**: Open-source Firebase alternative providing the PostgreSQL database, Authentication, Storage, and Edge Functions.
+- **Deno & Edge Functions**: For secure AI integrations (OpenAI compatible endpoints) running on the edge.
+- **Vapi**: Used for real-time voice intelligence configurations.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Ensure you have the following installed on your machine:
+- Node.js (v18 or above recommended)
+- npm, yarn, or bun (Node package manager)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/sohancreation/niramoy.git
+   cd niramoy
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. Set up environment variables:
+   Create a `.env` file in the root directory (you can copy `.env.example` if available) and add the necessary environment variables for Supabase and any third-party integrations.
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. Start the development server:
+   ```sh
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+5. Access the app:
+   Navigate to `http://localhost:8080` in your browser.
 
-**Edit a file directly in GitHub**
+## Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This app can easily be deployed on modern platforms such as **Vercel**, **Netlify**, or **GitHub Pages**. 
 
-**Use GitHub Codespaces**
+For GitHub Pages, it includes a GitHub Action inside `.github/workflows/deploy.yml` which deploys the app on pushed changes to the `main` branch.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Contributing
 
-## What technologies are used for this project?
+Contributions are welcome! If you'd like to improve Niramoy AI:
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-This project is built with:
+## License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is licensed under the MIT License - see the LICENSE file for details.
