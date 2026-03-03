@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { useLang } from '@/contexts/LanguageContext';
-import { useUser } from '@/contexts/UserContext';
+import type { UserProfile } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useFamilyFilter } from '@/hooks/use-family-query';
@@ -31,15 +32,16 @@ function getTodayDayIndex(): number {
 
 export default function DietPlanPage() {
   const { lang } = useLang();
-  const { user } = useUser();
   const { user: authUser } = useAuth();
-  const { canUseDietPlan, planDurationLimit, tier } = useSubscription();
+  const { canUseDietPlan, tier } = useSubscription();
   const { applyFilter, insertPayload, familyMemberId } = useFamilyFilter();
   const [goal, setGoal] = useState<Goal>('maintenance');
   const [foodPref, setFoodPref] = useState<FoodPref>('mixed');
   const [weeklyBudget, setWeeklyBudget] = useState<number>(2000);
   const [duration, setDuration] = useState<Duration>(1);
   const [plan, setPlan] = useState<MealPlan | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [activePlan, setActivePlan] = useState<any>(null);
   const [progressData, setProgressData] = useState<any[]>([]);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -52,9 +54,74 @@ export default function DietPlanPage() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  const normalizeActivity = useCallback((activity: string | null): UserProfile['activityLevel'] => {
+    return (['sedentary', 'light', 'moderate', 'active'] as const).includes(activity as any)
+      ? (activity as UserProfile['activityLevel'])
+      : 'moderate';
+  }, []);
+
+  const fetchProfile = useCallback(async () => {
+    if (!authUser) {
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+    setProfileLoading(true);
+    try {
+      if (familyMemberId) {
+        const { data } = await supabase.from('family_members')
+          .select('name, age, gender, height, weight, activity_level, medical_conditions')
+          .eq('id', familyMemberId)
+          .maybeSingle();
+        if (data) {
+          setProfile({
+            name: data.name || 'Family Member',
+            age: data.age ?? 30,
+            gender: data.gender === 'female' ? 'female' : 'male',
+            height: data.height ?? 170,
+            weight: data.weight ?? 70,
+            activityLevel: normalizeActivity(data.activity_level),
+            location: 'Dhaka',
+            medicalConditions: data.medical_conditions || '',
+          });
+        } else {
+          setProfile(null);
+        }
+      } else {
+        const { data } = await supabase.from('profiles')
+          .select('name, age, gender, height, weight, activity_level, location, medical_conditions')
+          .eq('user_id', authUser.id)
+          .maybeSingle();
+        if (data) {
+          setProfile({
+            name: data.name || 'You',
+            age: data.age ?? 30,
+            gender: data.gender === 'female' ? 'female' : 'male',
+            height: data.height ?? 170,
+            weight: data.weight ?? 70,
+            activityLevel: normalizeActivity(data.activity_level),
+            location: data.location || '',
+            medicalConditions: data.medical_conditions || '',
+          });
+        } else {
+          setProfile(null);
+        }
+      }
+    } catch (e) {
+      console.error('fetchProfile error:', e);
+      setProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [authUser, familyMemberId, normalizeActivity]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
   useEffect(() => {
     if (authUser) { fetchActivePlan(); fetchLatestCheckin(); }
-  }, [authUser]);
+  }, [authUser, familyMemberId]);
 
   const fetchLatestCheckin = async () => {
     try {
@@ -137,10 +204,56 @@ export default function DietPlanPage() {
     return totalItems > 0 ? Math.round((checkedMeals.size / totalItems) * 100) : 0;
   }, [currentDayPlan, checkedMeals]);
 
-  if (!user) return null;
+  if (profileLoading) {
+    return (
+      <AppLayout>
+        <div className="p-6 max-w-3xl mx-auto space-y-4">
+          <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
+            <Utensils className="h-8 w-8 text-primary" />
+            {t('dietPlan', lang)}
+          </h1>
+          <div className="health-card text-sm text-muted-foreground">
+            {lang === 'en' ? 'Loading your profile...' : 'আপনার প্রোফাইল লোড করা হচ্ছে...'}
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <AppLayout>
+        <div className="p-6 max-w-3xl mx-auto space-y-4">
+          <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
+            <Utensils className="h-8 w-8 text-primary" />
+            {t('dietPlan', lang)}
+          </h1>
+          <div className="health-card space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {lang === 'en'
+                ? 'Add your age, height, weight, activity level, and medical conditions in your profile to generate a personalized diet plan.'
+                : 'ব্যক্তিগত ডায়েট প্ল্যান পেতে প্রোফাইলে বয়স, উচ্চতা, ওজন, কার্যক্রম মাত্রা ও স্বাস্থ্য তথ্য যোগ করুন।'}
+            </p>
+            <div className="flex gap-2">
+              <Button asChild className="gradient-primary border-0 text-primary-foreground">
+                <Link to="/profile">{lang === 'en' ? 'Update profile' : 'প্রোফাইল আপডেট করুন'}</Link>
+              </Button>
+              <Button variant="outline" onClick={fetchProfile}>
+                {lang === 'en' ? 'Retry' : 'পুনরায় চেষ্টা করুন'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const handleGenerate = () => {
-    setPlan(generateDietPlan(user, goal, foodPref));
+    if (!profile) {
+      toast.error(lang === 'en' ? 'Add your profile details first' : 'প্রোফাইলের তথ্য যোগ করুন');
+      return;
+    }
+    setPlan(generateDietPlan(profile, goal, foodPref));
     setPreviewDay(0);
   };
 
