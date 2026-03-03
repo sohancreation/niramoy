@@ -23,6 +23,7 @@ import AdminPage from "./pages/AdminPage";
 import MindCarePage from "./pages/MindCarePage";
 import FamilyModePage from "./pages/FamilyModePage";
 import VoiceConsultPage from "./pages/VoiceConsultPage";
+import CheckinPage from "./pages/CheckinPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
                   <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                   <Route path="/family" element={<ProtectedRoute><FamilyModePage /></ProtectedRoute>} />
                   <Route path="/voice-consult" element={<ProtectedRoute><VoiceConsultPage /></ProtectedRoute>} />
+                  <Route path="/checkin" element={<ProtectedRoute><CheckinPage /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

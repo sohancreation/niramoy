@@ -4,8 +4,8 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useActiveProfile } from '@/contexts/ActiveProfileContext';
 import { t } from '@/lib/translations';
-import { 
-  LayoutDashboard, Utensils, Dumbbell, Leaf, MapPin, BarChart3, 
+import {
+  LayoutDashboard, Utensils, Dumbbell, Leaf, MapPin, BarChart3,
   User, Menu, X, Globe, AlertTriangle, LogOut, Moon, Sun, Trophy,
   ClipboardCheck, MessageCircle, HeartPulse, FileText, CreditCard, Brain, Users, ArrowLeft, Phone
 } from 'lucide-react';
@@ -17,7 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, key: 'dashboard' },
-  { path: '/dashboard#health-checkin', icon: ClipboardCheck, key: 'healthCheckin' },
+  { path: '/checkin', icon: ClipboardCheck, key: 'healthCheckin' },
   { path: '/quests', icon: Trophy, key: 'dailyQuests' },
   { path: '/diet', icon: Utensils, key: 'dietPlan' },
   { path: '/exercise', icon: Dumbbell, key: 'exercise' },
@@ -42,15 +42,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [chatbotOpen, setChatbotOpen] = useState(false);
 
   const handleNavClick = (path: string) => {
-    if (path.includes('#health-checkin')) {
-      if (location.pathname !== '/dashboard') {
-        window.location.href = path;
-      } else {
-        document.getElementById('health-checkin')?.scrollIntoView({ behavior: 'smooth' });
-      }
-      setMobileOpen(false);
-      return;
-    }
     setMobileOpen(false);
   };
 
@@ -72,11 +63,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 key={item.path}
                 to={isHash ? basePath : item.path}
                 onClick={() => handleNavClick(item.path)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  active 
-                    ? 'bg-sidebar-accent text-sidebar-primary' 
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${active
+                    ? 'bg-sidebar-accent text-sidebar-primary'
                     : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                }`}
+                  }`}
               >
                 <item.icon className="h-5 w-5" />
                 {t(item.key, lang)}
@@ -95,11 +85,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-4 border-t border-sidebar-border space-y-1">
           <Link
             to="/pricing"
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              location.pathname === '/pricing'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/pricing'
                 ? 'bg-[hsl(45,90%,48%)] text-[hsl(45,90%,10%)] shadow-md'
                 : 'text-[hsl(45,80%,60%)] hover:bg-[hsl(45,90%,48%)]/20 hover:text-[hsl(45,90%,60%)]'
-            }`}
+              }`}
           >
             <CreditCard className="h-4 w-4" />
             {t('pricing', lang)}
@@ -160,11 +149,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.path}
                   to={isHash ? basePath : item.path}
                   onClick={() => handleNavClick(item.path)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    active 
-                      ? 'bg-sidebar-accent text-sidebar-primary' 
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${active
+                      ? 'bg-sidebar-accent text-sidebar-primary'
                       : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50'
-                  }`}
+                    }`}
                 >
                   <item.icon className="h-5 w-5" />
                   {t(item.key, lang)}

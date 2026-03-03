@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import XpInfoModal from '@/components/XpInfoModal';
 import SubscriptionBanner from '@/components/SubscriptionBanner';
-import HealthCheckinWizard from '@/components/HealthCheckinWizard';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -35,6 +34,7 @@ const quickLinks = [
   { path: '/quests', icon: Trophy, key: 'dailyQuests', color: 'bg-destructive/10 text-destructive' },
   { path: '/tracker', icon: TrendingUp, key: 'tracker', color: 'bg-muted text-muted-foreground' },
   { path: '/mindcare', icon: Brain, key: 'mindCare', color: 'bg-[hsl(270,60%,95%)]/80 text-[hsl(270,60%,50%)]' },
+  { path: '/checkin', icon: Heart, key: 'healthCheckin', color: 'bg-primary/10 text-primary' },
 ];
 
 const moodOptions = [
@@ -94,22 +94,11 @@ export default function Dashboard() {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [showPrescriptionHistory, setShowPrescriptionHistory] = useState(false);
 
-  // Health update form
-  const [mood, setMood] = useState('');
-  const [energy, setEnergy] = useState(3);
-  const [stress, setStress] = useState(3);
-  const [sleepQuality, setSleepQuality] = useState(3);
-  const [sleepHours, setSleepHours] = useState(7);
-  const [selectedPains, setSelectedPains] = useState<string[]>([]);
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
-  const [healthNotes, setHealthNotes] = useState('');
+  const [xpModalOpen, setXpModalOpen] = useState(false);
   const [todayHealthDone, setTodayHealthDone] = useState(false);
   const [canCheckinAgain, setCanCheckinAgain] = useState(true);
   const [lastCheckinTime, setLastCheckinTime] = useState<string | null>(null);
-  const [savingHealth, setSavingHealth] = useState(false);
   const [notifDismissed, setNotifDismissed] = useState(false);
-  const [xpModalOpen, setXpModalOpen] = useState(false);
-  const [showHealthHistory, setShowHealthHistory] = useState(false);
 
   // Reset all state when family profile changes
   useEffect(() => {
@@ -127,14 +116,6 @@ export default function Dashboard() {
     setTodayHealthDone(false);
     setCanCheckinAgain(true);
     setLastCheckinTime(null);
-    setMood('');
-    setEnergy(3);
-    setStress(3);
-    setSleepQuality(3);
-    setSleepHours(7);
-    setSelectedPains([]);
-    setSelectedSymptoms([]);
-    setHealthNotes('');
   }, [familyMemberId]);
 
   const today = new Date().toLocaleDateString('en-CA');
@@ -180,15 +161,6 @@ export default function Dashboard() {
 
         if (latest.update_date === today) {
           setTodayHealthDone(true);
-          const h = latest;
-          setMood(h.mood || '');
-          setEnergy(h.energy_level || 3);
-          setStress(h.stress_level || 3);
-          setSleepQuality(h.sleep_quality || 3);
-          setSleepHours(h.sleep_hours || 7);
-          setSelectedPains(h.pain_areas || []);
-          setSelectedSymptoms(h.symptoms || []);
-          setHealthNotes(h.notes || '');
         }
 
         setCanCheckinAgain(hoursSince >= 18);
@@ -208,64 +180,6 @@ export default function Dashboard() {
   }, [authUser, today, familyMemberId]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  const handleSaveHealthUpdate = async () => {
-    if (!authUser) return;
-    setSavingHealth(true);
-    const payload = {
-      user_id: authUser.id,
-      update_date: today,
-      mood,
-      energy_level: energy,
-      stress_level: stress,
-      sleep_quality: sleepQuality,
-      sleep_hours: sleepHours,
-      pain_areas: selectedPains,
-      symptoms: selectedSymptoms,
-      notes: healthNotes,
-      ...insertPayload,
-    };
-
-    if (todayHealthDone) {
-      // If we already have a record for today, update it
-      await supabase.from('daily_health_updates')
-        .update(payload)
-        .eq('user_id', authUser.id)
-        .eq('update_date', today);
-    } else {
-      // Otherwise insert a new record
-      await supabase.from('daily_health_updates').insert(payload);
-    }
-    setTodayHealthDone(true);
-    setCanCheckinAgain(false);
-    setLastCheckinTime(new Date().toISOString());
-    setSavingHealth(false);
-    toast.success(lang === 'en' ? 'Health update saved!' : 'স্বাস্থ্য আপডেট সংরক্ষিত!');
-    fetchAll();
-
-    // Auto-notify with AI advice
-    fetchAiSuggestions().then(async () => {
-      // The AI suggestions are fetched - create a notification
-      try {
-        const { data, error } = await supabase.functions.invoke('ai-health-suggestions', {});
-        if (!error && data?.suggestions?.length > 0) {
-          const firstAdvice = typeof data.suggestions[0] === 'string'
-            ? data.suggestions[0]
-            : data.suggestions[0]?.[lang] || data.suggestions[0]?.en || '';
-          if (firstAdvice) {
-            await supabase.from('notifications').insert({
-              user_id: authUser.id,
-              title: lang === 'en' ? '🧠 AI Health Advice' : '🧠 এআই স্বাস্থ্য পরামর্শ',
-              message: firstAdvice.substring(0, 200),
-              type: 'info',
-            } as any);
-          }
-        }
-      } catch (e) {
-        console.error('Auto-notify error:', e);
-      }
-    });
-  };
 
   const fetchAiSuggestions = async () => {
     if (!authUser) return;
@@ -414,11 +328,6 @@ export default function Dashboard() {
     </div>
   );
 
-  const scrollToCheckin = () => {
-    document.getElementById('health-checkin')?.scrollIntoView({ behavior: 'smooth' });
-    setNotifDismissed(true);
-  };
-
   // Calendar active count for current month
   const activeThisMonth = streakDays.filter(d => {
     const [y, m] = d.split('-').map(Number);
@@ -447,9 +356,11 @@ export default function Dashboard() {
                 {lang === 'en' ? "Complete your check-in to track progress & get AI suggestions." : "প্রগতি ট্র্যাক করতে ও AI পরামর্শ পেতে চেক-ইন সম্পন্ন করুন।"}
               </p>
             </div>
-            <Button size="sm" onClick={scrollToCheckin} className="gradient-primary border-0 text-primary-foreground text-xs">
-              {lang === 'en' ? 'Check In' : 'চেক ইন'}
-            </Button>
+            <Link to="/checkin">
+              <Button size="sm" onClick={() => setNotifDismissed(true)} className="gradient-primary border-0 text-primary-foreground text-xs">
+                {lang === 'en' ? 'Check In' : 'চেক ইন'}
+              </Button>
+            </Link>
           </div>
         )}
 
@@ -736,14 +647,14 @@ export default function Dashboard() {
                   key={day}
                   title={dateStr}
                   className={`w-full aspect-square rounded-lg flex items-center justify-center text-sm transition-all duration-200 ${isFuture || isBeforeStart
-                      ? 'text-muted-foreground/40 font-medium'
-                      : isActive && isToday
-                        ? 'gradient-primary text-white ring-2 ring-primary ring-offset-1 ring-offset-background shadow-sm font-black'
-                        : isActive
-                          ? 'gradient-primary text-white shadow-sm font-black'
-                          : isToday
-                            ? 'border-2 border-primary bg-primary/20 font-black text-primary'
-                            : 'bg-card border border-border font-bold text-card-foreground hover:bg-muted'
+                    ? 'text-muted-foreground/40 font-medium'
+                    : isActive && isToday
+                      ? 'gradient-primary text-white ring-2 ring-primary ring-offset-1 ring-offset-background shadow-sm font-black'
+                      : isActive
+                        ? 'gradient-primary text-white shadow-sm font-black'
+                        : isToday
+                          ? 'border-2 border-primary bg-primary/20 font-black text-primary'
+                          : 'bg-card border border-border font-bold text-card-foreground hover:bg-muted'
                     }`}
                 >
                   {isActive ? (
@@ -1175,26 +1086,6 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* Daily Health Update - Step-by-Step Wizard */}
-        <HealthCheckinWizard
-          lang={lang}
-          mood={mood} setMood={setMood}
-          energy={energy} setEnergy={setEnergy}
-          stress={stress} setStress={setStress}
-          sleepQuality={sleepQuality} setSleepQuality={setSleepQuality}
-          sleepHours={sleepHours} setSleepHours={setSleepHours}
-          selectedPains={selectedPains} setSelectedPains={setSelectedPains}
-          selectedSymptoms={selectedSymptoms} setSelectedSymptoms={setSelectedSymptoms}
-          healthNotes={healthNotes} setHealthNotes={setHealthNotes}
-          todayHealthDone={todayHealthDone}
-          canCheckinAgain={canCheckinAgain}
-          lastCheckinTime={lastCheckinTime}
-          savingHealth={savingHealth}
-          handleSaveHealthUpdate={handleSaveHealthUpdate}
-          showHealthHistory={showHealthHistory} setShowHealthHistory={setShowHealthHistory}
-          healthHistory={healthHistory}
-          moodOptions={moodOptions}
-        />
 
         {/* AI Suggestions - Enhanced with categories */}
         <div className="health-card">
