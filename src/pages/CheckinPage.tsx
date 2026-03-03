@@ -21,8 +21,7 @@ const moodOptions = [
 export default function CheckinPage() {
     const { lang } = useLang();
     const { user: authUser } = useAuth();
-    const { familyMemberId } = useFamilyFilter();
-    const { insertPayload, applyFilter } = useFamilyFilter();
+    const { insertPayload, applyFilter, familyMemberId } = useFamilyFilter();
 
     const [mood, setMood] = useState('');
     const [energy, setEnergy] = useState(3);

@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import {
   Brain, Smile, Meh, Frown, AlertTriangle as StressIcon, Angry,
   Wind, Timer, BookOpen, Sparkles, Check, Droplets,
   Footprints, Moon, Smartphone, TrendingUp, TrendingDown,
@@ -552,10 +552,10 @@ export default function MindCarePage() {
   const loadCheckinData = async () => {
     try {
       setCheckinLoading(true);
-      const { data } = await supabase
+      const { data } = await applyFilter(supabase
         .from('daily_health_updates')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('user_id', user!.id))
         .order('update_date', { ascending: false })
         .limit(7);
       if (data && data.length > 0) {
@@ -787,7 +787,7 @@ export default function MindCarePage() {
               <div className="text-center py-6">
                 <Heart className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground mb-2">{lang === 'en' ? 'No health check-in data yet' : 'এখনো কোনো চেক-ইন ডেটা নেই'}</p>
-                <Link to="/dashboard#health-checkin"><Button size="sm" variant="outline">{lang === 'en' ? 'Go to Health Check-in' : 'স্বাস্থ্য চেক-ইনে যান'}</Button></Link>
+                <Link to="/checkin"><Button size="sm" variant="outline">{lang === 'en' ? 'Go to Health Check-in' : 'স্বাস্থ্য চেক-ইনে যান'}</Button></Link>
               </div>
             )}
           </CardContent>
@@ -854,17 +854,15 @@ export default function MindCarePage() {
                       transition={{ delay: idx * 0.05 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => toggleHabit(h.key)}
-                      className={`flex items-center gap-3 w-full p-3 rounded-xl border transition-all text-left ${
-                        done
-                          ? 'bg-[hsl(var(--success)/.08)] border-[hsl(var(--success)/.3)]'
-                          : 'bg-card hover:bg-muted/50 hover:border-primary/20'
-                      }`}
+                      className={`flex items-center gap-3 w-full p-3 rounded-xl border transition-all text-left ${done
+                        ? 'bg-[hsl(var(--success)/.08)] border-[hsl(var(--success)/.3)]'
+                        : 'bg-card hover:bg-muted/50 hover:border-primary/20'
+                        }`}
                     >
                       <motion.div
                         animate={done ? { scale: [1, 1.3, 1] } : {}}
-                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
-                          done ? 'bg-[hsl(var(--success))] border-[hsl(var(--success))]' : 'border-muted-foreground/40'
-                        }`}
+                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${done ? 'bg-[hsl(var(--success))] border-[hsl(var(--success))]' : 'border-muted-foreground/40'
+                          }`}
                       >
                         {done && <Check className="h-4 w-4 text-[hsl(var(--success-foreground))]" />}
                       </motion.div>
@@ -893,11 +891,10 @@ export default function MindCarePage() {
                     key={sec.key}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setActiveToolIdx(i)}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all ${
-                      i === activeToolIdx
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : i < activeToolIdx ? 'bg-[hsl(var(--success)/.15)] text-[hsl(var(--success))]' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                    }`}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all ${i === activeToolIdx
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : i < activeToolIdx ? 'bg-[hsl(var(--success)/.15)] text-[hsl(var(--success))]' : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                      }`}
                   >
                     <sec.icon className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">{sec.label[lang]}</span>

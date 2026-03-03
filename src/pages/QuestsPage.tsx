@@ -124,8 +124,8 @@ export default function QuestsPage() {
         return {
           verified: false,
           message: lang === 'en'
-            ? '❌ Health Check-in not done today! Complete your check-in on Dashboard first.'
-            : '❌ আজ হেলথ চেক-ইন করেননি! প্রথমে ড্যাশবোর্ডে চেক-ইন সম্পন্ন করুন।'
+            ? '❌ Health Check-in not done today! Complete your check-in on the Health Check-in page first.'
+            : '❌ আজ হেলথ চেক-ইন করেননি! প্রথমে হেলথ চেক-ইন পেজ থেকে ইন সম্পন্ন করুন।'
         };
       }
     }
@@ -376,8 +376,8 @@ export default function QuestsPage() {
                 key={c.key}
                 onClick={() => setActiveCategory(c.key)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${isActive
-                    ? 'gradient-primary text-primary-foreground shadow-md'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                  ? 'gradient-primary text-primary-foreground shadow-md'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                   }`}
                 whileTap={{ scale: 0.95 }}
               >
@@ -446,16 +446,16 @@ export default function QuestsPage() {
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ delay: idx * 0.05 }}
                     className={`health-card transition-all relative overflow-hidden ${task.completed
-                        ? 'bg-success/5 border-success/20'
-                        : `hover:${config.border} hover:shadow-md`
+                      ? 'bg-success/5 border-success/20'
+                      : `hover:${config.border} hover:shadow-md`
                       } ${isJustDone ? 'ring-2 ring-success ring-offset-2 ring-offset-background' : ''}`}
                   >
                     {/* Category indicator stripe */}
                     <div className={`absolute left-0 top-0 bottom-0 w-1 ${task.task_type === 'exercise' ? 'bg-accent'
-                        : task.task_type === 'diet' ? 'bg-primary'
-                          : task.task_type === 'mindcare' ? 'bg-[hsl(270,60%,50%)]'
-                            : task.task_type === 'water' ? 'bg-info'
-                              : 'bg-warning'
+                      : task.task_type === 'diet' ? 'bg-primary'
+                        : task.task_type === 'mindcare' ? 'bg-[hsl(270,60%,50%)]'
+                          : task.task_type === 'water' ? 'bg-info'
+                            : 'bg-warning'
                       }`} />
 
                     <div className="flex items-center gap-3 cursor-pointer pl-3" onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)}>
@@ -491,8 +491,8 @@ export default function QuestsPage() {
                       <div className="flex items-center gap-2 shrink-0">
                         <motion.span
                           className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${task.xp_earned > 0
-                              ? 'bg-accent/10 text-accent'
-                              : 'bg-warning/10 text-warning'
+                            ? 'bg-accent/10 text-accent'
+                            : 'bg-warning/10 text-warning'
                             }`}
                           key={task.xp_earned}
                           initial={task.xp_earned > 0 ? { scale: 1.3 } : {}}
