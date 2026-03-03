@@ -59,17 +59,20 @@ export default function TrackerPage() {
       // Check cooldown from latest entry
       if (data.length > 0) {
         const latest = data[0] as HealthLogRow;
-        const lastTime = new Date(latest.created_at).getTime();
-        const nextTime = lastTime + 18 * 60 * 60 * 1000;
-        if (Date.now() < nextTime) {
+        const isSameDay = latest.date === new Date().toLocaleDateString('en-CA');
+        if (isSameDay) {
           setCanLog(false);
+          // 18 hours still could be useful as a countdown for the next day, 
+          // but for simplicity we'll just base it on "tomorrow"
+          const lastTime = new Date(latest.created_at).getTime();
+          const nextTime = lastTime + 18 * 60 * 60 * 1000;
           setCooldownEnd(new Date(nextTime));
         } else {
           setCanLog(true);
           setCooldownEnd(null);
         }
-        // Pre-fill if today's log exists within cooldown
-        if (!canLog) {
+        // Pre-fill if today's log exists
+        if (isSameDay) {
           setWeight(latest.weight?.toString() || '');
           setBp(latest.bp || '');
           setWater(latest.water_intake?.toString() || '');
@@ -109,7 +112,7 @@ export default function TrackerPage() {
   const handleSave = async () => {
     if (!user || !canLog) return;
     setSaving(true);
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA');
 
     const { error } = await supabase.from('health_logs').insert({
       user_id: user.id,
@@ -149,7 +152,7 @@ export default function TrackerPage() {
     for (let i = 0; i < dates.length; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = d.toLocaleDateString('en-CA');
       if (dates.includes(dateStr)) {
         streak++;
       } else break;
@@ -262,9 +265,8 @@ export default function TrackerPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setExerciseDone(!exerciseDone)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                exerciseDone ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${exerciseDone ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                }`}
             >
               <Dumbbell className="h-4 w-4" />
               {t('logExercise', lang)} {exerciseDone ? '✓' : ''}

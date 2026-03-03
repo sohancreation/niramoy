@@ -12,9 +12,9 @@ import AppLayout from '@/components/AppLayout';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Utensils, Dumbbell, Leaf, MapPin, Flame, Droplets, Trophy, 
-  CalendarDays, TrendingUp, Brain, Heart, Smile, Frown, Meh, 
+import {
+  Utensils, Dumbbell, Leaf, MapPin, Flame, Droplets, Trophy,
+  CalendarDays, TrendingUp, Brain, Heart, Smile, Frown, Meh,
   Zap, Moon, AlertCircle, Sparkles, RefreshCw, CheckCircle2,
   ChevronLeft, ChevronRight, Bell, BedDouble, Eye, EyeOff, History, FileText, X
 } from 'lucide-react';
@@ -137,7 +137,7 @@ export default function Dashboard() {
     setHealthNotes('');
   }, [familyMemberId]);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   const fetchAll = useCallback(async () => {
     if (!authUser) return;
@@ -169,7 +169,7 @@ export default function Dashboard() {
     if (healthRes.data) {
       // Sort ascending for chart display
       setHealthHistory([...(healthRes.data || [])].reverse());
-      
+
       // 18-hour cooldown logic
       const latest = healthRes.data[0]; // most recent (desc order)
       if (latest) {
@@ -177,7 +177,7 @@ export default function Dashboard() {
         const now = Date.now();
         const hoursSince = (now - lastTime) / (1000 * 60 * 60);
         setLastCheckinTime(latest.created_at);
-        
+
         if (latest.update_date === today) {
           setTodayHealthDone(true);
           const h = latest;
@@ -190,7 +190,7 @@ export default function Dashboard() {
           setSelectedSymptoms(h.symptoms || []);
           setHealthNotes(h.notes || '');
         }
-        
+
         setCanCheckinAgain(hoursSince >= 18);
       } else {
         setCanCheckinAgain(true);
@@ -226,11 +226,14 @@ export default function Dashboard() {
       ...insertPayload,
     };
 
-    if (todayHealthDone && !canCheckinAgain) {
-      // Update existing today's record
-      await supabase.from('daily_health_updates').update(payload).eq('user_id', authUser.id).eq('update_date', today);
+    if (todayHealthDone) {
+      // If we already have a record for today, update it
+      await supabase.from('daily_health_updates')
+        .update(payload)
+        .eq('user_id', authUser.id)
+        .eq('update_date', today);
     } else {
-      // Insert new record (either first today or 18hrs passed)
+      // Otherwise insert a new record
       await supabase.from('daily_health_updates').insert(payload);
     }
     setTodayHealthDone(true);
@@ -239,15 +242,15 @@ export default function Dashboard() {
     setSavingHealth(false);
     toast.success(lang === 'en' ? 'Health update saved!' : 'স্বাস্থ্য আপডেট সংরক্ষিত!');
     fetchAll();
-    
+
     // Auto-notify with AI advice
     fetchAiSuggestions().then(async () => {
       // The AI suggestions are fetched - create a notification
       try {
         const { data, error } = await supabase.functions.invoke('ai-health-suggestions', {});
         if (!error && data?.suggestions?.length > 0) {
-          const firstAdvice = typeof data.suggestions[0] === 'string' 
-            ? data.suggestions[0] 
+          const firstAdvice = typeof data.suggestions[0] === 'string'
+            ? data.suggestions[0]
             : data.suggestions[0]?.[lang] || data.suggestions[0]?.en || '';
           if (firstAdvice) {
             await supabase.from('notifications').insert({
@@ -283,10 +286,10 @@ export default function Dashboard() {
 
   // Calendar data
   const { firstDay, daysInMonth } = useMemo(() => getMonthDays(calYear, calMonth), [calYear, calMonth]);
-  const monthNames = lang === 'en' 
-    ? ['January','February','March','April','May','June','July','August','September','October','November','December']
-    : ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
-  const dayLabels = lang === 'en' ? ['S','M','T','W','T','F','S'] : ['র','সো','ম','বু','বৃ','শু','শ'];
+  const monthNames = lang === 'en'
+    ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    : ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  const dayLabels = lang === 'en' ? ['S', 'M', 'T', 'W', 'T', 'F', 'S'] : ['র', 'সো', 'ম', 'বু', 'বৃ', 'শু', 'শ'];
 
   const canGoPrev = useMemo(() => {
     if (!userStartDate) return false;
@@ -338,19 +341,19 @@ export default function Dashboard() {
   }, [todayTasks]);
 
   const planChartData = useMemo(() => [
-    { 
-      name: lang === 'en' ? 'Diet' : 'ডায়েট', 
-      completed: dietCompleteness.percent, 
+    {
+      name: lang === 'en' ? 'Diet' : 'ডায়েট',
+      completed: dietCompleteness.percent,
       remaining: 100 - dietCompleteness.percent,
     },
-    { 
-      name: lang === 'en' ? 'Exercise' : 'ব্যায়াম', 
-      completed: exerciseCompleteness.percent, 
+    {
+      name: lang === 'en' ? 'Exercise' : 'ব্যায়াম',
+      completed: exerciseCompleteness.percent,
       remaining: 100 - exerciseCompleteness.percent,
     },
-    { 
-      name: lang === 'en' ? 'MindCare' : 'মাইন্ডকেয়ার', 
-      completed: mindcareCompleteness.percent, 
+    {
+      name: lang === 'en' ? 'MindCare' : 'মাইন্ডকেয়ার',
+      completed: mindcareCompleteness.percent,
       remaining: 100 - mindcareCompleteness.percent,
     },
   ], [dietCompleteness, exerciseCompleteness, mindcareCompleteness, lang]);
@@ -364,7 +367,7 @@ export default function Dashboard() {
   const activityLevel = profile.activity_level || 'moderate';
 
   const baseTdee = calculateTDEE({ weight, height, age, gender, activityLevel, name: profile.name || '', location: '', medicalConditions: '' });
-  
+
   // Dynamically adjust TDEE based on latest health check-in data
   const latestHealth = healthHistory.length > 0 ? healthHistory[healthHistory.length - 1] : null;
   let tdeeAdjustment = 1.0;
@@ -401,9 +404,8 @@ export default function Dashboard() {
           <button
             key={v}
             onClick={() => onChange(v)}
-            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-              value === v ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-            }`}
+            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${value === v ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              }`}
           >
             {v}
           </button>
@@ -487,7 +489,7 @@ export default function Dashboard() {
                 : t('todaySummary', lang)}
             </p>
           </div>
-          <button 
+          <button
             onClick={() => setXpModalOpen(true)}
             className="flex items-center gap-2 bg-warning/10 hover:bg-warning/20 border border-warning/30 rounded-xl px-4 py-2 transition-all cursor-pointer"
           >
@@ -507,13 +509,13 @@ export default function Dashboard() {
           const olderAvgEnergy = older.length > 0 ? older.reduce((s, h) => s + (h.energy_level || 3), 0) / older.length : recentAvgEnergy;
           const energyDiff = Math.round((recentAvgEnergy - olderAvgEnergy) * 20);
           const completionRate = todayTasks.length > 0 ? Math.round((todayTasks.filter((t: any) => t.completed).length / todayTasks.length) * 100) : 0;
-          
+
           const message = energyDiff > 0
             ? (lang === 'en' ? `📈 You're ${energyDiff}% more energetic than last week! Keep it up!` : `📈 তুমি গত সপ্তাহের চেয়ে ${energyDiff}% বেশি সক্রিয়! চালিয়ে যাও!`)
             : energyDiff < 0
               ? (lang === 'en' ? `💡 Energy is down ${Math.abs(energyDiff)}%. Try a lighter workout today.` : `💡 শক্তি ${Math.abs(energyDiff)}% কমেছে। আজ হালকা ব্যায়াম করুন।`)
               : (lang === 'en' ? `🌟 Staying consistent! ${completionRate}% tasks done today.` : `🌟 ধারাবাহিক আছো! আজ ${completionRate}% টাস্ক সম্পন্ন।`);
-          
+
           return (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20 animate-fade-in">
               <Sparkles className="h-5 w-5 text-primary flex-shrink-0" />
@@ -588,15 +590,15 @@ export default function Dashboard() {
                 <span className="text-lg font-heading font-bold text-primary">{dietCompleteness.percent}%</span>
               </div>
               <div className="relative h-4 rounded-full bg-muted overflow-hidden">
-                <div 
+                <div
                   className="absolute inset-y-0 left-0 rounded-full gradient-primary transition-all duration-700 ease-out"
                   style={{ width: `${dietCompleteness.percent}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                {dietCompleteness.total > 0 
+                {dietCompleteness.total > 0
                   ? `${dietCompleteness.completed}/${dietCompleteness.total} ${lang === 'en' ? 'tasks done' : 'টাস্ক সম্পন্ন'}`
-                  : (savedDietPlan 
+                  : (savedDietPlan
                     ? (lang === 'en' ? 'Plan saved • No tasks for today yet' : 'প্ল্যান সংরক্ষিত • আজ কোনো টাস্ক নেই')
                     : (lang === 'en' ? 'No diet plan saved yet' : 'এখনো কোনো ডায়েট প্ল্যান নেই'))
                 }
@@ -614,15 +616,15 @@ export default function Dashboard() {
                 <span className="text-lg font-heading font-bold text-accent">{exerciseCompleteness.percent}%</span>
               </div>
               <div className="relative h-4 rounded-full bg-muted overflow-hidden">
-                <div 
+                <div
                   className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-700 ease-out"
                   style={{ width: `${exerciseCompleteness.percent}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                {exerciseCompleteness.total > 0 
+                {exerciseCompleteness.total > 0
                   ? `${exerciseCompleteness.completed}/${exerciseCompleteness.total} ${lang === 'en' ? 'tasks done' : 'টাস্ক সম্পন্ন'}`
-                  : (savedExercisePlan 
+                  : (savedExercisePlan
                     ? (lang === 'en' ? 'Plan saved • No tasks for today yet' : 'প্ল্যান সংরক্ষিত • আজ কোনো টাস্ক নেই')
                     : (lang === 'en' ? 'No exercise plan saved yet' : 'এখনো কোনো ব্যায়াম প্ল্যান নেই'))
                 }
@@ -640,13 +642,13 @@ export default function Dashboard() {
                 <span className="text-lg font-heading font-bold text-[hsl(270,60%,50%)]">{mindcareCompleteness.percent}%</span>
               </div>
               <div className="relative h-4 rounded-full bg-muted overflow-hidden">
-                <div 
+                <div
                   className="absolute inset-y-0 left-0 rounded-full bg-[hsl(270,60%,50%)] transition-all duration-700 ease-out"
                   style={{ width: `${mindcareCompleteness.percent}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                {mindcareCompleteness.total > 0 
+                {mindcareCompleteness.total > 0
                   ? `${mindcareCompleteness.completed}/${mindcareCompleteness.total} ${lang === 'en' ? 'tasks done' : 'টাস্ক সম্পন্ন'}`
                   : (lang === 'en' ? 'Mental care tasks appear in Daily Tasks' : 'মানসিক যত্নের টাস্ক দৈনিক টাস্কে দেখুন')
                 }
@@ -659,15 +661,15 @@ export default function Dashboard() {
               <BarChart data={planChartData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(v) => `${v}%`} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} width={60} />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number) => `${value}%`}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))', 
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
                     fontSize: '12px',
                     color: 'hsl(var(--foreground))',
-                  }} 
+                  }}
                 />
                 <Bar dataKey="completed" stackId="a" fill="hsl(var(--primary))" radius={[4, 0, 0, 4]} name={lang === 'en' ? 'Done' : 'সম্পন্ন'} />
                 <Bar dataKey="remaining" stackId="a" fill="hsl(var(--muted))" radius={[0, 4, 4, 0]} name={lang === 'en' ? 'Remaining' : 'বাকি'} />
@@ -689,8 +691,8 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-0.5 bg-muted/50 rounded-lg p-0.5">
-              <button 
-                onClick={() => navigateMonth(-1)} 
+              <button
+                onClick={() => navigateMonth(-1)}
                 disabled={!canGoPrev}
                 className="p-1 rounded-md hover:bg-background disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
@@ -699,8 +701,8 @@ export default function Dashboard() {
               <span className="text-xs font-semibold text-foreground min-w-[100px] text-center px-1">
                 {monthNames[calMonth]} {calYear}
               </span>
-              <button 
-                onClick={() => navigateMonth(1)} 
+              <button
+                onClick={() => navigateMonth(1)}
                 disabled={!canGoNext}
                 className="p-1 rounded-md hover:bg-background disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
@@ -733,8 +735,7 @@ export default function Dashboard() {
                 <div
                   key={day}
                   title={dateStr}
-                  className={`w-full aspect-square rounded-lg flex items-center justify-center text-sm transition-all duration-200 ${
-                    isFuture || isBeforeStart
+                  className={`w-full aspect-square rounded-lg flex items-center justify-center text-sm transition-all duration-200 ${isFuture || isBeforeStart
                       ? 'text-muted-foreground/40 font-medium'
                       : isActive && isToday
                         ? 'gradient-primary text-white ring-2 ring-primary ring-offset-1 ring-offset-background shadow-sm font-black'
@@ -743,7 +744,7 @@ export default function Dashboard() {
                           : isToday
                             ? 'border-2 border-primary bg-primary/20 font-black text-primary'
                             : 'bg-card border border-border font-bold text-card-foreground hover:bg-muted'
-                  }`}
+                    }`}
                 >
                   {isActive ? (
                     <span className="flex flex-col items-center leading-none">
@@ -789,14 +790,14 @@ export default function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
                     <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))', 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                         fontSize: '12px',
                         color: 'hsl(var(--foreground))',
-                      }} 
+                      }}
                     />
                     <Legend iconSize={10} wrapperStyle={{ fontSize: '11px' }} />
                     <Line type="monotone" dataKey="energy" name={lang === 'en' ? 'Energy' : 'শক্তি'} stroke="hsl(var(--warning))" strokeWidth={2.5} dot={{ r: 3, fill: 'hsl(var(--warning))' }} activeDot={{ r: 6 }} />
@@ -806,8 +807,8 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                {lang === 'en' 
-                  ? '↑ Higher energy & sleep = better • ↓ Lower stress = better' 
+                {lang === 'en'
+                  ? '↑ Higher energy & sleep = better • ↓ Lower stress = better'
                   : '↑ বেশি শক্তি ও ঘুম = ভালো • ↓ কম চাপ = ভালো'}
               </p>
             </>
@@ -818,8 +819,8 @@ export default function Dashboard() {
                 {lang === 'en' ? 'Not enough data yet' : 'এখনো যথেষ্ট ডেটা নেই'}
               </p>
               <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">
-                {lang === 'en' 
-                  ? 'Complete at least 2 daily health check-ins to see your improvement graph.' 
+                {lang === 'en'
+                  ? 'Complete at least 2 daily health check-ins to see your improvement graph.'
                   : 'আপনার উন্নতির গ্রাফ দেখতে কমপক্ষে ২টি দৈনিক স্বাস্থ্য চেক-ইন সম্পন্ন করুন।'}
               </p>
             </div>
@@ -828,175 +829,174 @@ export default function Dashboard() {
 
         {/* Saved Diet Plan with History */}
         <Link to="/diet" className="block">
-        <div className="health-card hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <Utensils className="h-5 w-5 text-primary" />
-              {lang === 'en' ? 'Diet Plan' : 'ডায়েট প্ল্যান'}
-              {savedDietPlan?.weeklyBudget && (
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                  ৳{Math.round(savedDietPlan.weeklyBudget / 7)}/{lang === 'en' ? 'day' : 'দিন'}
-                </span>
-              )}
-            </h3>
-            <div className="flex items-center gap-1">
-              {allDietPlans.length > 0 && (
-                <Button size="sm" variant="ghost" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDietHistory(!showDietHistory); }} className="gap-1 text-xs">
-                  <History className="h-3.5 w-3.5" />
-                  {lang === 'en' ? `History (${allDietPlans.length})` : `ইতিহাস (${allDietPlans.length})`}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {savedDietPlan ? (
-            <>
-              {/* Clickable Meal Summary - each meal type opens popup */}
-              <div className="grid grid-cols-4 gap-2 mb-3" onClick={(e) => e.preventDefault()}>
-                {['breakfast', 'lunch', 'dinner', 'snacks'].map(meal => {
-                  const icons: Record<string, string> = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snacks: '🍎' };
-                  // Support both old flat format and new days format
-                  const planDays = savedDietPlan.days;
-                  let items: string[] = [];
-                  if (planDays && Array.isArray(planDays)) {
-                    // Collect all unique items from all days for this meal
-                    const todayIdx = new Date().getDay() === 6 ? 0 : new Date().getDay() + 1;
-                    items = planDays[todayIdx]?.[meal] || planDays[0]?.[meal] || [];
-                  } else {
-                    items = Array.isArray(savedDietPlan[meal]) ? savedDietPlan[meal] : [];
-                  }
-                  const count = items.length;
-                  return (
-                    <button
-                      key={meal}
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDietMealPopup({ mealType: meal, items }); }}
-                      className="bg-muted/30 rounded-lg p-2 text-center hover:bg-primary/10 hover:border-primary/20 border border-transparent transition-all"
-                    >
-                      <span className="text-lg">{icons[meal]}</span>
-                      <p className="text-xs font-medium text-foreground mt-1">{t(meal, lang)}</p>
-                      <p className="text-[10px] text-primary font-medium">{lang === 'en' ? 'Tap to view' : 'দেখুন'}</p>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {savedDietPlan.totalCalories && (
-                <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t border-border">
-                  <span><Flame className="inline h-3 w-3 text-destructive" /> {savedDietPlan.totalCalories} cal</span>
-                  <span><Droplets className="inline h-3 w-3 text-info" /> {savedDietPlan.waterLiters}L water</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-6">
-              <Utensils className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No active diet plan' : 'কোনো সক্রিয় ডায়েট প্ল্যান নেই'}</p>
-              <Link to="/diet">
-                <Button size="sm" variant="outline" className="mt-2 text-xs">
-                  {lang === 'en' ? 'Create Diet Plan' : 'ডায়েট প্ল্যান তৈরি করুন'}
-                </Button>
-              </Link>
-            </div>
-          )}
-
-          {/* Diet History */}
-          {showDietHistory && allDietPlans.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-border space-y-2 animate-in slide-in-from-top-2" onClick={(e) => e.preventDefault()}>
-              <p className="text-xs font-semibold text-muted-foreground mb-2">{lang === 'en' ? 'Previous Plans' : 'পূর্ববর্তী প্ল্যান'}</p>
-              {allDietPlans.map((p, i) => (
-                <div key={p.id} className={`flex items-center justify-between p-2 rounded-lg text-xs ${p.is_active ? 'bg-primary/10 border border-primary/20' : 'bg-muted/20'}`}>
-                  <div className="flex items-center gap-2">
-                    {p.is_active && <CheckCircle2 className="h-3 w-3 text-primary" />}
-                    <span className="text-foreground font-medium">{p.goal || 'General'}</span>
-                    <span className="text-muted-foreground">• {new Date(p.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${p.is_active ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                    {p.is_active ? (lang === 'en' ? 'Active' : 'সক্রিয়') : (lang === 'en' ? 'Past' : 'পুরনো')}
+          <div className="health-card hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                <Utensils className="h-5 w-5 text-primary" />
+                {lang === 'en' ? 'Diet Plan' : 'ডায়েট প্ল্যান'}
+                {savedDietPlan?.weeklyBudget && (
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    ৳{Math.round(savedDietPlan.weeklyBudget / 7)}/{lang === 'en' ? 'day' : 'দিন'}
                   </span>
-                </div>
-              ))}
+                )}
+              </h3>
+              <div className="flex items-center gap-1">
+                {allDietPlans.length > 0 && (
+                  <Button size="sm" variant="ghost" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDietHistory(!showDietHistory); }} className="gap-1 text-xs">
+                    <History className="h-3.5 w-3.5" />
+                    {lang === 'en' ? `History (${allDietPlans.length})` : `ইতিহাস (${allDietPlans.length})`}
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+
+            {savedDietPlan ? (
+              <>
+                {/* Clickable Meal Summary - each meal type opens popup */}
+                <div className="grid grid-cols-4 gap-2 mb-3" onClick={(e) => e.preventDefault()}>
+                  {['breakfast', 'lunch', 'dinner', 'snacks'].map(meal => {
+                    const icons: Record<string, string> = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snacks: '🍎' };
+                    // Support both old flat format and new days format
+                    const planDays = savedDietPlan.days;
+                    let items: string[] = [];
+                    if (planDays && Array.isArray(planDays)) {
+                      // Collect all unique items from all days for this meal
+                      const todayIdx = new Date().getDay() === 6 ? 0 : new Date().getDay() + 1;
+                      items = planDays[todayIdx]?.[meal] || planDays[0]?.[meal] || [];
+                    } else {
+                      items = Array.isArray(savedDietPlan[meal]) ? savedDietPlan[meal] : [];
+                    }
+                    const count = items.length;
+                    return (
+                      <button
+                        key={meal}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDietMealPopup({ mealType: meal, items }); }}
+                        className="bg-muted/30 rounded-lg p-2 text-center hover:bg-primary/10 hover:border-primary/20 border border-transparent transition-all"
+                      >
+                        <span className="text-lg">{icons[meal]}</span>
+                        <p className="text-xs font-medium text-foreground mt-1">{t(meal, lang)}</p>
+                        <p className="text-[10px] text-primary font-medium">{lang === 'en' ? 'Tap to view' : 'দেখুন'}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {savedDietPlan.totalCalories && (
+                  <div className="flex gap-4 text-xs text-muted-foreground pt-2 border-t border-border">
+                    <span><Flame className="inline h-3 w-3 text-destructive" /> {savedDietPlan.totalCalories} cal</span>
+                    <span><Droplets className="inline h-3 w-3 text-info" /> {savedDietPlan.waterLiters}L water</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <Utensils className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No active diet plan' : 'কোনো সক্রিয় ডায়েট প্ল্যান নেই'}</p>
+                <Link to="/diet">
+                  <Button size="sm" variant="outline" className="mt-2 text-xs">
+                    {lang === 'en' ? 'Create Diet Plan' : 'ডায়েট প্ল্যান তৈরি করুন'}
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Diet History */}
+            {showDietHistory && allDietPlans.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-border space-y-2 animate-in slide-in-from-top-2" onClick={(e) => e.preventDefault()}>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">{lang === 'en' ? 'Previous Plans' : 'পূর্ববর্তী প্ল্যান'}</p>
+                {allDietPlans.map((p, i) => (
+                  <div key={p.id} className={`flex items-center justify-between p-2 rounded-lg text-xs ${p.is_active ? 'bg-primary/10 border border-primary/20' : 'bg-muted/20'}`}>
+                    <div className="flex items-center gap-2">
+                      {p.is_active && <CheckCircle2 className="h-3 w-3 text-primary" />}
+                      <span className="text-foreground font-medium">{p.goal || 'General'}</span>
+                      <span className="text-muted-foreground">• {new Date(p.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${p.is_active ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                      {p.is_active ? (lang === 'en' ? 'Active' : 'সক্রিয়') : (lang === 'en' ? 'Past' : 'পুরনো')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Link>
 
         {/* Saved Exercise Plan with History */}
         <Link to="/exercise" className="block">
-        <div className="health-card hover:border-accent/40 hover:shadow-md transition-all cursor-pointer">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <Dumbbell className="h-5 w-5 text-accent" />
-              {lang === 'en' ? 'Exercise Plan' : 'ব্যায়াম প্ল্যান'}
-            </h3>
-            <div className="flex items-center gap-1">
-              {allExercisePlans.length > 0 && (
-                <Button size="sm" variant="ghost" onClick={() => setShowExerciseHistory(!showExerciseHistory)} className="gap-1 text-xs">
-                  <History className="h-3.5 w-3.5" />
-                  {lang === 'en' ? `History (${allExercisePlans.length})` : `ইতিহাস (${allExercisePlans.length})`}
-                </Button>
-              )}
-              {savedExercisePlan && Array.isArray(savedExercisePlan) && (
-                <Button size="sm" variant="ghost" onClick={() => setShowExerciseDetail(!showExerciseDetail)} className="gap-1 text-xs">
-                  {showExerciseDetail ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  {showExerciseDetail ? (lang === 'en' ? 'Hide' : 'লুকান') : (lang === 'en' ? 'Show' : 'দেখুন')}
-                </Button>
-              )}
+          <div className="health-card hover:border-accent/40 hover:shadow-md transition-all cursor-pointer">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                <Dumbbell className="h-5 w-5 text-accent" />
+                {lang === 'en' ? 'Exercise Plan' : 'ব্যায়াম প্ল্যান'}
+              </h3>
+              <div className="flex items-center gap-1">
+                {allExercisePlans.length > 0 && (
+                  <Button size="sm" variant="ghost" onClick={() => setShowExerciseHistory(!showExerciseHistory)} className="gap-1 text-xs">
+                    <History className="h-3.5 w-3.5" />
+                    {lang === 'en' ? `History (${allExercisePlans.length})` : `ইতিহাস (${allExercisePlans.length})`}
+                  </Button>
+                )}
+                {savedExercisePlan && Array.isArray(savedExercisePlan) && (
+                  <Button size="sm" variant="ghost" onClick={() => setShowExerciseDetail(!showExerciseDetail)} className="gap-1 text-xs">
+                    {showExerciseDetail ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showExerciseDetail ? (lang === 'en' ? 'Hide' : 'লুকান') : (lang === 'en' ? 'Show' : 'দেখুন')}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
 
-          {savedExercisePlan && Array.isArray(savedExercisePlan) ? (
-            <>
-              {/* Clickable day chips - tap to see exercises */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {savedExercisePlan.map((day: any, i: number) => (
-                  <button
-                    key={i}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setExerciseDayPopup(day); }}
-                    className={`shrink-0 px-3 py-2 rounded-lg text-center min-w-[70px] transition-all hover:shadow-md ${
-                      day.isRest ? 'bg-muted/30 hover:bg-muted/50' : 'bg-accent/10 hover:bg-accent/20 border border-transparent hover:border-accent/30'
-                    }`}
-                  >
-                    <p className="text-xs font-semibold text-foreground">{day.day?.split(' ')[0] || `D${i+1}`}</p>
-                    {day.isRest ? (
-                      <BedDouble className="h-3.5 w-3.5 text-muted-foreground mx-auto mt-1" />
-                    ) : (
-                      <p className="text-[10px] text-accent font-medium mt-1">{lang === 'en' ? 'Tap' : 'দেখুন'}</p>
-                    )}
-                  </button>
+            {savedExercisePlan && Array.isArray(savedExercisePlan) ? (
+              <>
+                {/* Clickable day chips - tap to see exercises */}
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {savedExercisePlan.map((day: any, i: number) => (
+                    <button
+                      key={i}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setExerciseDayPopup(day); }}
+                      className={`shrink-0 px-3 py-2 rounded-lg text-center min-w-[70px] transition-all hover:shadow-md ${day.isRest ? 'bg-muted/30 hover:bg-muted/50' : 'bg-accent/10 hover:bg-accent/20 border border-transparent hover:border-accent/30'
+                        }`}
+                    >
+                      <p className="text-xs font-semibold text-foreground">{day.day?.split(' ')[0] || `D${i + 1}`}</p>
+                      {day.isRest ? (
+                        <BedDouble className="h-3.5 w-3.5 text-muted-foreground mx-auto mt-1" />
+                      ) : (
+                        <p className="text-[10px] text-accent font-medium mt-1">{lang === 'en' ? 'Tap' : 'দেখুন'}</p>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <Dumbbell className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No active exercise plan' : 'কোনো সক্রিয় ব্যায়াম প্ল্যান নেই'}</p>
+                <Link to="/exercise">
+                  <Button size="sm" variant="outline" className="mt-2 text-xs">
+                    {lang === 'en' ? 'Create Exercise Plan' : 'ব্যায়াম প্ল্যান তৈরি করুন'}
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Exercise History */}
+            {showExerciseHistory && allExercisePlans.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-border space-y-2 animate-in slide-in-from-top-2" onClick={(e) => e.preventDefault()}>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">{lang === 'en' ? 'Previous Plans' : 'পূর্ববর্তী প্ল্যান'}</p>
+                {allExercisePlans.map((p, i) => (
+                  <div key={p.id} className={`flex items-center justify-between p-2 rounded-lg text-xs ${p.is_active ? 'bg-accent/10 border border-accent/20' : 'bg-muted/20'}`}>
+                    <div className="flex items-center gap-2">
+                      {p.is_active && <CheckCircle2 className="h-3 w-3 text-accent" />}
+                      <span className="text-foreground font-medium">{p.goal || 'General'}</span>
+                      <span className="text-muted-foreground">• {new Date(p.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${p.is_active ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                      {p.is_active ? (lang === 'en' ? 'Active' : 'সক্রিয়') : (lang === 'en' ? 'Past' : 'পুরনো')}
+                    </span>
+                  </div>
                 ))}
               </div>
-            </>
-          ) : (
-            <div className="text-center py-6">
-              <Dumbbell className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{lang === 'en' ? 'No active exercise plan' : 'কোনো সক্রিয় ব্যায়াম প্ল্যান নেই'}</p>
-              <Link to="/exercise">
-                <Button size="sm" variant="outline" className="mt-2 text-xs">
-                  {lang === 'en' ? 'Create Exercise Plan' : 'ব্যায়াম প্ল্যান তৈরি করুন'}
-                </Button>
-              </Link>
-            </div>
-          )}
-
-          {/* Exercise History */}
-          {showExerciseHistory && allExercisePlans.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-border space-y-2 animate-in slide-in-from-top-2" onClick={(e) => e.preventDefault()}>
-              <p className="text-xs font-semibold text-muted-foreground mb-2">{lang === 'en' ? 'Previous Plans' : 'পূর্ববর্তী প্ল্যান'}</p>
-              {allExercisePlans.map((p, i) => (
-                <div key={p.id} className={`flex items-center justify-between p-2 rounded-lg text-xs ${p.is_active ? 'bg-accent/10 border border-accent/20' : 'bg-muted/20'}`}>
-                  <div className="flex items-center gap-2">
-                    {p.is_active && <CheckCircle2 className="h-3 w-3 text-accent" />}
-                    <span className="text-foreground font-medium">{p.goal || 'General'}</span>
-                    <span className="text-muted-foreground">• {new Date(p.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] ${p.is_active ? 'bg-accent/20 text-accent' : 'bg-muted text-muted-foreground'}`}>
-                    {p.is_active ? (lang === 'en' ? 'Active' : 'সক্রিয়') : (lang === 'en' ? 'Past' : 'পুরনো')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         </Link>
 
         {/* Prescription & Medicine Reminders */}
@@ -1236,14 +1236,13 @@ export default function Dashboard() {
                 const altText = typeof s !== 'string' ? (lang === 'en' ? s.bn : s.en) : null;
 
                 return (
-                  <motion.div 
-                    key={i} 
+                  <motion.div
+                    key={i}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.08 }}
-                    className={`rounded-xl p-3 text-sm border ${
-                      priority === 'high' ? 'border-destructive/30 bg-destructive/5' : 'border-border/50 bg-muted/30'
-                    }`}
+                    className={`rounded-xl p-3 text-sm border ${priority === 'high' ? 'border-destructive/30 bg-destructive/5' : 'border-border/50 bg-muted/30'
+                      }`}
                   >
                     <div className="flex items-start gap-2.5">
                       <div className={`p-1.5 rounded-lg ${cfg.bg} shrink-0 mt-0.5`}>

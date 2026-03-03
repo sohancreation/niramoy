@@ -309,7 +309,7 @@ export function getStreak(): number {
   for (let i = 0; i < logs.length; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = d.toLocaleDateString('en-CA');
     if (logs.find(l => l.date === dateStr)) {
       streak++;
     } else break;

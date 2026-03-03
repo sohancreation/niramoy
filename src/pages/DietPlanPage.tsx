@@ -52,7 +52,7 @@ export default function DietPlanPage() {
   const [selectedDay, setSelectedDay] = useState(getTodayDayIndex());
   const [previewDay, setPreviewDay] = useState(0);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   const normalizeActivity = useCallback((activity: string | null): UserProfile['activityLevel'] => {
     return (['sedentary', 'light', 'moderate', 'active'] as const).includes(activity as any)
@@ -267,7 +267,7 @@ export default function DietPlanPage() {
         user_id: authUser.id, plan_type: 'diet',
         plan_data: { ...plan, weeklyBudget } as any,
         goal, is_active: true, duration_months: duration,
-        start_date: today, end_date: endDate.toISOString().split('T')[0],
+        start_date: today, end_date: endDate.toLocaleDateString('en-CA'),
         total_days_completed: 0,
         ...insertPayload,
       }).select().single();
@@ -308,7 +308,7 @@ export default function DietPlanPage() {
 
     const pd = activePlan.plan_data as any;
     const days = pd.days ? [...pd.days] : null;
-    
+
     if (days) {
       const dayPlan = { ...days[dayIdx] };
       const currentItems: string[] = [...(dayPlan[mealType] || [])];
@@ -360,312 +360,311 @@ export default function DietPlanPage() {
           }}
         />
       ) : (
-      <div className="p-6 max-w-4xl mx-auto space-y-6">
-        <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
-          <Utensils className="h-8 w-8 text-primary" />
-          {t('dietPlan', lang)}
-        </h1>
+        <div className="p-6 max-w-4xl mx-auto space-y-6">
+          <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
+            <Utensils className="h-8 w-8 text-primary" />
+            {t('dietPlan', lang)}
+          </h1>
 
-        {/* Active Plan Progress */}
-        {activePlan && (
-          <div className="health-card space-y-4 animate-slide-up">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                {lang === 'en' ? 'Active Plan' : 'সক্রিয় প্ল্যান'}
-                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                  {activePlan.duration_months || 1} {lang === 'en' ? 'month' : 'মাস'}
-                </span>
-              </h2>
-              <div className="flex items-center gap-2">
-                {!todayFeedbackDone && (
-                  <Button size="sm" variant="outline" onClick={() => setFeedbackOpen(true)} className="gap-1.5">
-                    <MessageSquare className="h-4 w-4" /> {lang === 'en' ? 'Feedback' : 'ফিডব্যাক'}
-                  </Button>
-                )}
-                {todayFeedbackDone && <span className="flex items-center gap-1 text-xs text-accent font-medium"><CheckCircle2 className="h-4 w-4" /> ✓</span>}
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <LiquidProgress percent={planProgress.percent} label={motivation[lang]} sublabel={`${planProgress.completed}/${planProgress.totalDays} ${lang === 'en' ? 'days' : 'দিন'}`} color="primary" />
-              <div className="flex-1 w-full space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-heading font-bold text-foreground">{planProgress.daysLeft}</p>
-                    <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Days Left' : 'বাকি দিন'}</p>
-                  </div>
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-heading font-bold text-foreground">{planProgress.completed}</p>
-                    <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Completed' : 'সম্পন্ন'}</p>
-                  </div>
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <Flame className="h-4 w-4 text-destructive mx-auto mb-1" />
-                    <p className="text-sm font-bold text-foreground">{(activePlan.plan_data as any)?.totalCalories || 0}</p>
-                    <p className="text-[10px] text-muted-foreground">{t('calories', lang)}/day</p>
-                  </div>
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <Droplets className="h-4 w-4 text-info mx-auto mb-1" />
-                    <p className="text-sm font-bold text-foreground">{(activePlan.plan_data as any)?.waterLiters || 0}L</p>
-                    <p className="text-[10px] text-muted-foreground">{t('water', lang)}</p>
-                  </div>
-                </div>
-                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-foreground font-medium">{lang === 'en' ? "Today's Meals" : 'আজকের খাবার'}</span>
-                    <span className="text-primary font-bold">{todayMealProgress}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${todayMealProgress}%`, background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))' }} />
-                  </div>
+          {/* Active Plan Progress */}
+          {activePlan && (
+            <div className="health-card space-y-4 animate-slide-up">
+              <div className="flex items-center justify-between">
+                <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  {lang === 'en' ? 'Active Plan' : 'সক্রিয় প্ল্যান'}
+                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                    {activePlan.duration_months || 1} {lang === 'en' ? 'month' : 'মাস'}
+                  </span>
+                </h2>
+                <div className="flex items-center gap-2">
+                  {!todayFeedbackDone && (
+                    <Button size="sm" variant="outline" onClick={() => setFeedbackOpen(true)} className="gap-1.5">
+                      <MessageSquare className="h-4 w-4" /> {lang === 'en' ? 'Feedback' : 'ফিডব্যাক'}
+                    </Button>
+                  )}
+                  {todayFeedbackDone && <span className="flex items-center gap-1 text-xs text-accent font-medium"><CheckCircle2 className="h-4 w-4" /> ✓</span>}
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
-              <Sparkles className="h-5 w-5 text-primary flex-shrink-0 animate-pulse-soft" />
-              <p className="text-sm font-medium text-foreground">{motivation[lang]}</p>
-            </div>
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <LiquidProgress percent={planProgress.percent} label={motivation[lang]} sublabel={`${planProgress.completed}/${planProgress.totalDays} ${lang === 'en' ? 'days' : 'দিন'}`} color="primary" />
+                <div className="flex-1 w-full space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <p className="text-2xl font-heading font-bold text-foreground">{planProgress.daysLeft}</p>
+                      <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Days Left' : 'বাকি দিন'}</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <p className="text-2xl font-heading font-bold text-foreground">{planProgress.completed}</p>
+                      <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Completed' : 'সম্পন্ন'}</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <Flame className="h-4 w-4 text-destructive mx-auto mb-1" />
+                      <p className="text-sm font-bold text-foreground">{(activePlan.plan_data as any)?.totalCalories || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('calories', lang)}/day</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <Droplets className="h-4 w-4 text-info mx-auto mb-1" />
+                      <p className="text-sm font-bold text-foreground">{(activePlan.plan_data as any)?.waterLiters || 0}L</p>
+                      <p className="text-[10px] text-muted-foreground">{t('water', lang)}</p>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-foreground font-medium">{lang === 'en' ? "Today's Meals" : 'আজকের খাবার'}</span>
+                      <span className="text-primary font-bold">{todayMealProgress}%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${todayMealProgress}%`, background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            <div className="flex justify-center p-4 rounded-xl bg-info/5 border border-info/20">
-              <WaterTracker target={Math.round(((activePlan.plan_data as any)?.waterLiters || 2) * 1000)} current={waterIntake} onAdd={(ml) => setWaterIntake(prev => prev + ml)} lang={lang} />
-            </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 animate-pulse-soft" />
+                <p className="text-sm font-medium text-foreground">{motivation[lang]}</p>
+              </div>
 
-            {/* Day Selector for Active Plan */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-                {lang === 'en' ? 'Weekly Meal Plan — Select a day' : 'সাপ্তাহিক খাবার পরিকল্পনা — একটি দিন বেছে নিন'}
-              </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {(lang === 'en' ? DAY_NAMES_EN : DAY_NAMES_BN).map((dayName, i) => (
-                  <motion.button
-                    key={i}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setSelectedDay(i)}
-                    className={`shrink-0 px-3 py-2 rounded-xl text-xs font-medium transition-all min-w-[70px] text-center ${
-                      selectedDay === i
+              <div className="flex justify-center p-4 rounded-xl bg-info/5 border border-info/20">
+                <WaterTracker target={Math.round(((activePlan.plan_data as any)?.waterLiters || 2) * 1000)} current={waterIntake} onAdd={(ml) => setWaterIntake(prev => prev + ml)} lang={lang} />
+              </div>
+
+              {/* Day Selector for Active Plan */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+                  {lang === 'en' ? 'Weekly Meal Plan — Select a day' : 'সাপ্তাহিক খাবার পরিকল্পনা — একটি দিন বেছে নিন'}
+                </h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {(lang === 'en' ? DAY_NAMES_EN : DAY_NAMES_BN).map((dayName, i) => (
+                    <motion.button
+                      key={i}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedDay(i)}
+                      className={`shrink-0 px-3 py-2 rounded-xl text-xs font-medium transition-all min-w-[70px] text-center ${selectedDay === i
                         ? 'gradient-primary text-primary-foreground shadow-md'
                         : i === todayDayIdx
                           ? 'bg-primary/10 border-2 border-primary/30 text-foreground'
                           : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {dayName.slice(0, 3)}
-                    {i === todayDayIdx && <span className="block text-[8px] mt-0.5">{lang === 'en' ? 'Today' : 'আজ'}</span>}
-                  </motion.button>
+                        }`}
+                    >
+                      {dayName.slice(0, 3)}
+                      {i === todayDayIdx && <span className="block text-[8px] mt-0.5">{lang === 'en' ? 'Today' : 'আজ'}</span>}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Selected Day's Meals */}
+              {currentDayPlan && (
+                <AnimatePresence mode="wait">
+                  <motion.div key={selectedDay} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-3">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {(lang === 'en' ? DAY_NAMES_EN : DAY_NAMES_BN)[selectedDay]} — {lang === 'en' ? 'Tick when done' : 'খেলে টিক দিন'}
+                      {selectedDay !== todayDayIdx && <span className="text-xs text-muted-foreground ml-2">({lang === 'en' ? 'Preview only' : 'শুধু দেখুন'})</span>}
+                    </h3>
+                    {['breakfast', 'lunch', 'dinner', 'snacks'].map(key => {
+                      const items: string[] = currentDayPlan?.[key] || [];
+                      return (
+                        <div key={key} className="p-3 rounded-xl bg-muted/30 border border-border/50">
+                          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+                            <span>{mealIcons[key]}</span> {t(key, lang)}
+                            <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full ml-auto">
+                              ≈ ৳{Math.round(dailyBudget * (mealBudget[key] || 20) / 100)}
+                            </span>
+                          </h4>
+                          <ul className="space-y-2">
+                            {items.map((item: string, i: number) => {
+                              const mealKey = `d${selectedDay}-${key}-${i}`;
+                              const isDone = checkedMeals.has(mealKey);
+                              const isToday = selectedDay === todayDayIdx;
+                              const isGenAlt = generatingAlt === `${selectedDay}-${key}-${i}`;
+                              return (
+                                <motion.li key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                                  className={`flex items-center gap-2 text-sm rounded-lg p-2 transition-all ${isDone ? 'bg-accent/10' : 'hover:bg-muted/50'}`}
+                                >
+                                  <button onClick={() => isToday && handleMealCheck(mealKey)} disabled={!isToday} className="shrink-0">
+                                    {isDone ? <CheckCircle2 className="h-5 w-5 text-accent" /> : <Circle className={`h-5 w-5 ${isToday ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/40'} transition-colors`} />}
+                                  </button>
+                                  <span className={`flex-1 ${isDone ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{item}</span>
+                                  {isToday && (
+                                    <button onClick={() => handleGenerateAlternative(key, i, selectedDay)} disabled={isGenAlt}
+                                      className="shrink-0 text-xs text-primary hover:text-primary/80 flex items-center gap-1 px-2 py-1 rounded-md bg-primary/5 hover:bg-primary/10 transition-all"
+                                    >
+                                      <RefreshCw className={`h-3 w-3 ${isGenAlt ? 'animate-spin' : ''}`} />
+                                      {lang === 'en' ? 'Alt' : 'বিকল্প'}
+                                    </button>
+                                  )}
+                                </motion.li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </div>
+          )}
+
+          {/* Health Condition Alerts */}
+          {healthWarning && (
+            <div className="flex flex-col gap-1 p-3 rounded-xl bg-warning/10 border border-warning/20">
+              {healthWarning.map((w, i) => (
+                <p key={i} className="text-xs text-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-3 w-3 text-warning flex-shrink-0" /> {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Generate New Plan */}
+          <div className="health-card space-y-4">
+            <h2 className="font-heading font-semibold text-foreground">
+              {activePlan ? (lang === 'en' ? 'Generate New Plan' : 'নতুন প্ল্যান তৈরি') : (lang === 'en' ? 'Create Your Plan' : 'আপনার প্ল্যান তৈরি করুন')}
+            </h2>
+
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" /> {lang === 'en' ? 'Plan Duration' : 'প্ল্যানের সময়কাল'}
+              </label>
+              <div className="flex gap-2">
+                {([1, 3] as Duration[]).map(d => {
+                  const disabled = tier === 'free' && d > 1;
+                  return (
+                    <button key={d} onClick={() => !disabled && setDuration(d)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${duration === d ? 'gradient-primary text-primary-foreground' : disabled ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                    >{d} {lang === 'en' ? 'Month' : 'মাস'} {disabled ? '🔒' : ''}</button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('goal', lang)}</label>
+              <div className="flex gap-2 flex-wrap">
+                {(['weightLoss', 'maintenance', 'muscleGain'] as Goal[]).map(g => (
+                  <button key={g} onClick={() => setGoal(g)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${goal === g ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                  >{t(g, lang)}</button>
                 ))}
               </div>
             </div>
 
-            {/* Selected Day's Meals */}
-            {currentDayPlan && (
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('foodPreference', lang)}</label>
+              <div className="flex gap-2 flex-wrap">
+                {(['veg', 'nonVeg', 'mixed'] as FoodPref[]).map(f => (
+                  <button key={f} onClick={() => setFoodPref(f)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${foodPref === f ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                  >{t(f, lang)}</button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-warning" /> {lang === 'en' ? 'Weekly Food Budget (BDT)' : 'সাপ্তাহিক খাবার বাজেট (টাকা)'}
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {[1000, 1500, 2000, 3000, 5000].map(b => (
+                  <button key={b} onClick={() => setWeeklyBudget(b)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${weeklyBudget === b ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                  >৳{b}</button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">≈ ৳{dailyBudget}/{lang === 'en' ? 'day' : 'দিন'}</p>
+            </div>
+
+            <Button onClick={handleGenerate} className="gradient-primary border-0 text-primary-foreground">
+              {t('generatePlan', lang)}
+            </Button>
+          </div>
+
+          {/* Generated Plan Preview with Day Navigation */}
+          {plan && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="health-card text-center">
+                  <Flame className="h-6 w-6 text-destructive mx-auto mb-1" />
+                  <p className="text-2xl font-heading font-bold text-foreground">{plan.totalCalories}</p>
+                  <p className="text-xs text-muted-foreground">{t('calories', lang)}/day</p>
+                </div>
+                <div className="health-card text-center">
+                  <Droplets className="h-6 w-6 text-info mx-auto mb-1" />
+                  <p className="text-2xl font-heading font-bold text-foreground">{plan.waterLiters}L</p>
+                  <p className="text-xs text-muted-foreground">{t('water', lang)}</p>
+                </div>
+                <div className="health-card text-center">
+                  <Wallet className="h-6 w-6 text-warning mx-auto mb-1" />
+                  <p className="text-2xl font-heading font-bold text-foreground">৳{dailyBudget}</p>
+                  <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Daily Budget' : 'দৈনিক বাজেট'}</p>
+                </div>
+              </div>
+
+              {/* Day selector for preview */}
+              <div className="flex items-center justify-between">
+                <Button size="sm" variant="ghost" onClick={() => setPreviewDay(Math.max(0, previewDay - 1))} disabled={previewDay === 0}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex gap-2 overflow-x-auto">
+                  {plan.days.map((d, i) => (
+                    <button key={i} onClick={() => setPreviewDay(i)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${previewDay === i ? 'gradient-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
+                    >
+                      {(lang === 'en' ? d.day : d.dayBn).slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setPreviewDay(Math.min(6, previewDay + 1))} disabled={previewDay === 6}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
               <AnimatePresence mode="wait">
-                <motion.div key={selectedDay} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {(lang === 'en' ? DAY_NAMES_EN : DAY_NAMES_BN)[selectedDay]} — {lang === 'en' ? 'Tick when done' : 'খেলে টিক দিন'}
-                    {selectedDay !== todayDayIdx && <span className="text-xs text-muted-foreground ml-2">({lang === 'en' ? 'Preview only' : 'শুধু দেখুন'})</span>}
+                <motion.div key={previewDay} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+                  <h3 className="font-heading font-semibold text-foreground mb-3">
+                    {lang === 'en' ? plan.days[previewDay].day : plan.days[previewDay].dayBn}
                   </h3>
                   {['breakfast', 'lunch', 'dinner', 'snacks'].map(key => {
-                    const items: string[] = currentDayPlan?.[key] || [];
+                    const items = (plan.days[previewDay] as any)[key] as string[];
                     return (
-                      <div key={key} className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                        <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
-                          <span>{mealIcons[key]}</span> {t(key, lang)}
-                          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full ml-auto">
-                            ≈ ৳{Math.round(dailyBudget * (mealBudget[key] || 20) / 100)}
-                          </span>
-                        </h4>
+                      <div key={key} className="health-card mb-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                            <span>{mealIcons[key]}</span> {t(key, lang)}
+                          </h4>
+                          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">≈ ৳{Math.round(dailyBudget * (mealBudget[key] || 20) / 100)}</span>
+                        </div>
                         <ul className="space-y-2">
-                          {items.map((item: string, i: number) => {
-                            const mealKey = `d${selectedDay}-${key}-${i}`;
-                            const isDone = checkedMeals.has(mealKey);
-                            const isToday = selectedDay === todayDayIdx;
-                            const isGenAlt = generatingAlt === `${selectedDay}-${key}-${i}`;
-                            return (
-                              <motion.li key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                                className={`flex items-center gap-2 text-sm rounded-lg p-2 transition-all ${isDone ? 'bg-accent/10' : 'hover:bg-muted/50'}`}
-                              >
-                                <button onClick={() => isToday && handleMealCheck(mealKey)} disabled={!isToday} className="shrink-0">
-                                  {isDone ? <CheckCircle2 className="h-5 w-5 text-accent" /> : <Circle className={`h-5 w-5 ${isToday ? 'text-muted-foreground hover:text-primary' : 'text-muted-foreground/40'} transition-colors`} />}
-                                </button>
-                                <span className={`flex-1 ${isDone ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{item}</span>
-                                {isToday && (
-                                  <button onClick={() => handleGenerateAlternative(key, i, selectedDay)} disabled={isGenAlt}
-                                    className="shrink-0 text-xs text-primary hover:text-primary/80 flex items-center gap-1 px-2 py-1 rounded-md bg-primary/5 hover:bg-primary/10 transition-all"
-                                  >
-                                    <RefreshCw className={`h-3 w-3 ${isGenAlt ? 'animate-spin' : ''}`} />
-                                    {lang === 'en' ? 'Alt' : 'বিকল্প'}
-                                  </button>
-                                )}
-                              </motion.li>
-                            );
-                          })}
+                          {items.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                              <span className="text-primary mt-0.5">•</span> {item}
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     );
                   })}
                 </motion.div>
               </AnimatePresence>
-            )}
-          </div>
-        )}
 
-        {/* Health Condition Alerts */}
-        {healthWarning && (
-          <div className="flex flex-col gap-1 p-3 rounded-xl bg-warning/10 border border-warning/20">
-            {healthWarning.map((w, i) => (
-              <p key={i} className="text-xs text-foreground flex items-center gap-2">
-                <AlertTriangle className="h-3 w-3 text-warning flex-shrink-0" /> {w}
-              </p>
-            ))}
-          </div>
-        )}
+              <Button onClick={handleStartPlan} className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-12 text-base">
+                <Play className="h-5 w-5" />
+                {lang === 'en' ? `Start ${duration}-Month Plan` : `${duration} মাসের প্ল্যান শুরু করুন`}
+              </Button>
 
-        {/* Generate New Plan */}
-        <div className="health-card space-y-4">
-          <h2 className="font-heading font-semibold text-foreground">
-            {activePlan ? (lang === 'en' ? 'Generate New Plan' : 'নতুন প্ল্যান তৈরি') : (lang === 'en' ? 'Create Your Plan' : 'আপনার প্ল্যান তৈরি করুন')}
-          </h2>
-
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary" /> {lang === 'en' ? 'Plan Duration' : 'প্ল্যানের সময়কাল'}
-            </label>
-            <div className="flex gap-2">
-              {([1, 3] as Duration[]).map(d => {
-                const disabled = tier === 'free' && d > 1;
-                return (
-                <button key={d} onClick={() => !disabled && setDuration(d)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${duration === d ? 'gradient-primary text-primary-foreground' : disabled ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
-                >{d} {lang === 'en' ? 'Month' : 'মাস'} {disabled ? '🔒' : ''}</button>
-                );
-              })}
+              <div className="flex items-start gap-2 p-4 rounded-lg bg-warning/10 border border-warning/20">
+                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">{t('disclaimer', lang)}</p>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('goal', lang)}</label>
-            <div className="flex gap-2 flex-wrap">
-              {(['weightLoss', 'maintenance', 'muscleGain'] as Goal[]).map(g => (
-                <button key={g} onClick={() => setGoal(g)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${goal === g ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
-                >{t(g, lang)}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('foodPreference', lang)}</label>
-            <div className="flex gap-2 flex-wrap">
-              {(['veg', 'nonVeg', 'mixed'] as FoodPref[]).map(f => (
-                <button key={f} onClick={() => setFoodPref(f)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${foodPref === f ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
-                >{t(f, lang)}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-warning" /> {lang === 'en' ? 'Weekly Food Budget (BDT)' : 'সাপ্তাহিক খাবার বাজেট (টাকা)'}
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {[1000, 1500, 2000, 3000, 5000].map(b => (
-                <button key={b} onClick={() => setWeeklyBudget(b)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${weeklyBudget === b ? 'gradient-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
-                >৳{b}</button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">≈ ৳{dailyBudget}/{lang === 'en' ? 'day' : 'দিন'}</p>
-          </div>
-
-          <Button onClick={handleGenerate} className="gradient-primary border-0 text-primary-foreground">
-            {t('generatePlan', lang)}
-          </Button>
+          <PlanFeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} onSubmit={handleFeedback} planType="diet" lang={lang} />
         </div>
-
-        {/* Generated Plan Preview with Day Navigation */}
-        {plan && (
-          <div className="space-y-4 animate-slide-up">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="health-card text-center">
-                <Flame className="h-6 w-6 text-destructive mx-auto mb-1" />
-                <p className="text-2xl font-heading font-bold text-foreground">{plan.totalCalories}</p>
-                <p className="text-xs text-muted-foreground">{t('calories', lang)}/day</p>
-              </div>
-              <div className="health-card text-center">
-                <Droplets className="h-6 w-6 text-info mx-auto mb-1" />
-                <p className="text-2xl font-heading font-bold text-foreground">{plan.waterLiters}L</p>
-                <p className="text-xs text-muted-foreground">{t('water', lang)}</p>
-              </div>
-              <div className="health-card text-center">
-                <Wallet className="h-6 w-6 text-warning mx-auto mb-1" />
-                <p className="text-2xl font-heading font-bold text-foreground">৳{dailyBudget}</p>
-                <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Daily Budget' : 'দৈনিক বাজেট'}</p>
-              </div>
-            </div>
-
-            {/* Day selector for preview */}
-            <div className="flex items-center justify-between">
-              <Button size="sm" variant="ghost" onClick={() => setPreviewDay(Math.max(0, previewDay - 1))} disabled={previewDay === 0}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex gap-2 overflow-x-auto">
-                {plan.days.map((d, i) => (
-                  <button key={i} onClick={() => setPreviewDay(i)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${previewDay === i ? 'gradient-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
-                  >
-                    {(lang === 'en' ? d.day : d.dayBn).slice(0, 3)}
-                  </button>
-                ))}
-              </div>
-              <Button size="sm" variant="ghost" onClick={() => setPreviewDay(Math.min(6, previewDay + 1))} disabled={previewDay === 6}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div key={previewDay} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h3 className="font-heading font-semibold text-foreground mb-3">
-                  {lang === 'en' ? plan.days[previewDay].day : plan.days[previewDay].dayBn}
-                </h3>
-                {['breakfast', 'lunch', 'dinner', 'snacks'].map(key => {
-                  const items = (plan.days[previewDay] as any)[key] as string[];
-                  return (
-                    <div key={key} className="health-card mb-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-heading font-semibold text-foreground flex items-center gap-2">
-                          <span>{mealIcons[key]}</span> {t(key, lang)}
-                        </h4>
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">≈ ৳{Math.round(dailyBudget * (mealBudget[key] || 20) / 100)}</span>
-                      </div>
-                      <ul className="space-y-2">
-                        {items.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <span className="text-primary mt-0.5">•</span> {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            </AnimatePresence>
-
-            <Button onClick={handleStartPlan} className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-12 text-base">
-              <Play className="h-5 w-5" />
-              {lang === 'en' ? `Start ${duration}-Month Plan` : `${duration} মাসের প্ল্যান শুরু করুন`}
-            </Button>
-
-            <div className="flex items-start gap-2 p-4 rounded-lg bg-warning/10 border border-warning/20">
-              <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">{t('disclaimer', lang)}</p>
-            </div>
-          </div>
-        )}
-
-        <PlanFeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} onSubmit={handleFeedback} planType="diet" lang={lang} />
-      </div>
       )}
     </AppLayout>
   );

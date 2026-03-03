@@ -40,9 +40,9 @@ export function useSubscription(): SubscriptionInfo {
 
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
-    
-    const today = new Date().toISOString().split('T')[0];
-    
+
+    const today = new Date().toLocaleDateString('en-CA');
+
     const [subRes, profileRes, chatUsageRes] = await Promise.all([
       supabase
         .from('subscriptions')
@@ -118,17 +118,17 @@ export function useSubscription(): SubscriptionInfo {
   const incrementAiChatUsage = async (): Promise<boolean> => {
     if (!user) return false;
     if (aiChatLimit !== -1 && aiChatUsedToday >= aiChatLimit) return false;
-    
-    const today = new Date().toISOString().split('T')[0];
+
+    const today = new Date().toLocaleDateString('en-CA');
     const newCount = aiChatUsedToday + 1;
-    
+
     const { error } = await supabase
       .from('ai_chat_usage')
       .upsert(
         { user_id: user.id, usage_date: today, question_count: newCount },
         { onConflict: 'user_id,usage_date' }
       );
-    
+
     if (!error) {
       setAiChatUsedToday(newCount);
       return true;

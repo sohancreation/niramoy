@@ -78,7 +78,7 @@ export function useGamification() {
   const [tasks, setTasks] = useState<DailyTask[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -137,7 +137,7 @@ export function useGamification() {
 
   const uncompleteTask = async (taskId: string) => {
     if (!user || !gamification) return;
-    
+
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
 
@@ -204,11 +204,11 @@ export function useGamification() {
         { key: 'dinner', emoji: '🌙', label: 'রাতের খাবার / Dinner' },
         { key: 'snacks', emoji: '🍎', label: 'স্ন্যাকস / Snacks' },
       ];
-      
+
       // Support day-based diet plan
       const planDays = pd?.days;
       const todayDayIdx = new Date().getDay() === 6 ? 0 : new Date().getDay() + 1; // Sat=0
-      
+
       meals.forEach(m => {
         let items: string[] = [];
         if (planDays && Array.isArray(planDays)) {
@@ -274,14 +274,14 @@ export function useGamification() {
         const medKey = (med.name || '').toLowerCase().trim();
         if (!medKey || addedMedicines.has(medKey)) continue;
         addedMedicines.add(medKey);
-        
+
         const desc = [
           med.dosage || '',
           med.frequency || '',
           med.timing || '',
           med.instructions || '',
         ].filter(Boolean).join(' • ');
-        
+
         tasksToInsert.push({
           user_id: user.id,
           task_date: today,
@@ -364,7 +364,7 @@ export function useGamification() {
     if (!user) return null;
     const ext = file.name.split('.').pop();
     const path = `${user.id}/${taskId}-${Date.now()}.${ext}`;
-    
+
     const { error } = await supabase.storage.from('task-photos').upload(path, file);
     if (error) return null;
 

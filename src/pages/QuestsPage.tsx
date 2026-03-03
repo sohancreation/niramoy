@@ -5,10 +5,10 @@ import { t } from '@/lib/translations';
 import { useGamification, calculateLevel, xpForNextLevel, xpForCurrentLevel, getLevelTitle } from '@/hooks/use-gamification';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { 
-  Trophy, Zap, Flame, Star, CheckCircle2, Circle, Camera, 
-  Droplets, Dumbbell, Utensils, BedDouble, RefreshCw, Sparkles, 
-  ChevronDown, ChevronUp, Plus, Gift, Percent, Brain, Heart, 
+import {
+  Trophy, Zap, Flame, Star, CheckCircle2, Circle, Camera,
+  Droplets, Dumbbell, Utensils, BedDouble, RefreshCw, Sparkles,
+  ChevronDown, ChevronUp, Plus, Gift, Percent, Brain, Heart,
   PartyPopper, Target, Award
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -88,12 +88,12 @@ export default function QuestsPage() {
   // Verify if user actually completed related activities before ticking
   const verifyTaskCompletion = async (task: typeof tasks[0]): Promise<{ verified: boolean; message: string }> => {
     if (!authUser) return { verified: false, message: '' };
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('en-CA');
 
     // Check health tracker tasks (weight, water, sleep, exercise, bp related)
     const trackerKeywords = ['weight', 'ওজন', 'water', 'পানি', 'sleep', 'ঘুম', 'bp', 'রক্তচাপ', 'tracker', 'ট্র্যাকার'];
     const isTrackerTask = trackerKeywords.some(k => task.task_name.toLowerCase().includes(k.toLowerCase()));
-    
+
     // Check health check-in tasks (mood, energy, stress, check-in)
     const checkinKeywords = ['check-in', 'চেক-ইন', 'checkin', 'mood', 'মেজাজ', 'energy', 'শক্তি', 'stress', 'চাপ'];
     const isCheckinTask = checkinKeywords.some(k => task.task_name.toLowerCase().includes(k.toLowerCase()));
@@ -109,11 +109,11 @@ export default function QuestsPage() {
     if (isTrackerTask) {
       const { data } = await supabase.from('health_logs').select('id').eq('user_id', authUser.id).eq('date', todayStr).limit(1);
       if (!data || data.length === 0) {
-        return { 
-          verified: false, 
-          message: lang === 'en' 
-            ? '❌ Health Tracker not updated today! Go to Tracker page first.' 
-            : '❌ আজ হেলথ ট্র্যাকার আপডেট করেননি! প্রথমে ট্র্যাকার পেজে যান।' 
+        return {
+          verified: false,
+          message: lang === 'en'
+            ? '❌ Health Tracker not updated today! Go to Tracker page first.'
+            : '❌ আজ হেলথ ট্র্যাকার আপডেট করেননি! প্রথমে ট্র্যাকার পেজে যান।'
         };
       }
     }
@@ -121,11 +121,11 @@ export default function QuestsPage() {
     if (isCheckinTask) {
       const { data } = await supabase.from('daily_health_updates').select('id').eq('user_id', authUser.id).eq('update_date', todayStr).limit(1);
       if (!data || data.length === 0) {
-        return { 
-          verified: false, 
-          message: lang === 'en' 
-            ? '❌ Health Check-in not done today! Complete your check-in on Dashboard first.' 
-            : '❌ আজ হেলথ চেক-ইন করেননি! প্রথমে ড্যাশবোর্ডে চেক-ইন সম্পন্ন করুন।' 
+        return {
+          verified: false,
+          message: lang === 'en'
+            ? '❌ Health Check-in not done today! Complete your check-in on Dashboard first.'
+            : '❌ আজ হেলথ চেক-ইন করেননি! প্রথমে ড্যাশবোর্ডে চেক-ইন সম্পন্ন করুন।'
         };
       }
     }
@@ -134,11 +134,11 @@ export default function QuestsPage() {
       // Check if exercise logged in health_logs today
       const { data } = await supabase.from('health_logs').select('exercise').eq('user_id', authUser.id).eq('date', todayStr).limit(1);
       if (!data || data.length === 0) {
-        return { 
-          verified: false, 
-          message: lang === 'en' 
-            ? '❌ Exercise not logged today! Update your Tracker first.' 
-            : '❌ আজ ব্যায়াম লগ করেননি! প্রথমে ট্র্যাকার আপডেট করুন।' 
+        return {
+          verified: false,
+          message: lang === 'en'
+            ? '❌ Exercise not logged today! Update your Tracker first.'
+            : '❌ আজ ব্যায়াম লগ করেননি! প্রথমে ট্র্যাকার আপডেট করুন।'
         };
       }
     }
@@ -150,11 +150,11 @@ export default function QuestsPage() {
         supabase.from('journal_entries').select('id').eq('user_id', authUser.id).eq('entry_date', todayStr).limit(1),
       ]);
       if ((!moodData || moodData.length === 0) && (!journalData || journalData.length === 0)) {
-        return { 
-          verified: false, 
-          message: lang === 'en' 
-            ? '❌ MindCare not done today! Visit MindCare page first.' 
-            : '❌ আজ মাইন্ডকেয়ার করেননি! প্রথমে মাইন্ডকেয়ার পেজে যান।' 
+        return {
+          verified: false,
+          message: lang === 'en'
+            ? '❌ MindCare not done today! Visit MindCare page first.'
+            : '❌ আজ মাইন্ডকেয়ার করেননি! প্রথমে মাইন্ডকেয়ার পেজে যান।'
         };
       }
     }
@@ -179,14 +179,14 @@ export default function QuestsPage() {
       setJustCompleted(taskId);
       await completeTask(taskId);
       toast.success(lang === 'en' ? '+5 XP earned! ⚡' : '+৫ এক্সপি অর্জিত! ⚡', { icon: '⚡' });
-      
+
       // Check if all tasks now completed
       const newCompleted = tasks.filter(t => t.completed || t.id === taskId).length;
       if (newCompleted === tasks.length) {
         confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
         toast.success(lang === 'en' ? '🎉 All tasks completed! Amazing!' : '🎉 সব টাস্ক সম্পন্ন! অসাধারণ!');
       }
-      
+
       setTimeout(() => setJustCompleted(null), 1500);
     }
   };
@@ -258,7 +258,7 @@ export default function QuestsPage() {
         )}
 
         {/* Level Card - Enhanced */}
-        <motion.div 
+        <motion.div
           className="health-card relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -267,7 +267,7 @@ export default function QuestsPage() {
             <Star className="w-full h-full text-warning" />
           </div>
           <div className="flex items-center gap-4 mb-4">
-            <motion.div 
+            <motion.div
               className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-primary-foreground font-heading text-2xl font-bold shadow-lg"
               whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
@@ -283,7 +283,7 @@ export default function QuestsPage() {
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">{lang === 'en' ? 'Today' : 'আজ'}</p>
-              <motion.p 
+              <motion.p
                 className="font-heading text-2xl font-bold text-accent"
                 key={todayXp}
                 initial={{ scale: 1.3 }}
@@ -300,7 +300,7 @@ export default function QuestsPage() {
               <span>Level {level + 1}</span>
             </div>
             <div className="relative h-3 rounded-full bg-muted overflow-hidden">
-              <motion.div 
+              <motion.div
                 className="absolute inset-y-0 left-0 rounded-full gradient-primary"
                 initial={{ width: 0 }}
                 animate={{ width: `${progressInLevel}%` }}
@@ -311,7 +311,7 @@ export default function QuestsPage() {
         </motion.div>
 
         {/* Circular Progress Ring */}
-        <motion.div 
+        <motion.div
           className="health-card flex items-center gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -320,9 +320,9 @@ export default function QuestsPage() {
           <div className="relative w-24 h-24 shrink-0">
             <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-              <motion.circle 
-                cx="50" cy="50" r="42" fill="none" 
-                stroke="hsl(var(--primary))" strokeWidth="8" 
+              <motion.circle
+                cx="50" cy="50" r="42" fill="none"
+                stroke="hsl(var(--primary))" strokeWidth="8"
                 strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}
                 initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
@@ -349,7 +349,7 @@ export default function QuestsPage() {
                   <div key={c.key} className="flex items-center gap-2">
                     <Icon className={`h-3.5 w-3.5 ${c.color} shrink-0`} />
                     <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         className={`h-full rounded-full ${c.key === 'exercise' ? 'bg-accent' : c.key === 'diet' ? 'bg-primary' : c.key === 'mindcare' ? 'bg-[hsl(270,60%,50%)]' : c.key === 'water' ? 'bg-info' : 'bg-warning'}`}
                         initial={{ width: 0 }}
                         animate={{ width: `${c.percent}%` }}
@@ -375,19 +375,17 @@ export default function QuestsPage() {
               <motion.button
                 key={c.key}
                 onClick={() => setActiveCategory(c.key)}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                  isActive 
-                    ? 'gradient-primary text-primary-foreground shadow-md' 
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${isActive
+                    ? 'gradient-primary text-primary-foreground shadow-md'
                     : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                }`}
+                  }`}
                 whileTap={{ scale: 0.95 }}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {c.label[lang]}
                 {catTasks.length > 0 && (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
+                    }`}>
                     {catDone}/{catTasks.length}
                   </span>
                 )}
@@ -401,7 +399,7 @@ export default function QuestsPage() {
           <div className="flex items-center justify-between">
             <h3 className="font-heading text-lg font-semibold text-foreground flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-warning" />
-              {activeCategory === 'all' 
+              {activeCategory === 'all'
                 ? (lang === 'en' ? "Today's Tasks" : 'আজকের টাস্ক')
                 : CATEGORIES.find(c => c.key === activeCategory)?.label[lang]}
             </h3>
@@ -423,12 +421,12 @@ export default function QuestsPage() {
               {lang === 'en' ? 'Refresh' : 'রিফ্রেশ'}
             </Button>
           </div>
-          
+
           <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} accept="image/*,video/*" className="hidden" />
 
           {filteredTasks.length === 0 ? (
             <div className="health-card text-center py-8 text-muted-foreground">
-              {activeCategory === 'all' 
+              {activeCategory === 'all'
                 ? (lang === 'en' ? 'No tasks for today. Save a diet or exercise plan first!' : 'আজ কোনো টাস্ক নেই। প্রথমে একটি প্ল্যান সেভ করুন!')
                 : (lang === 'en' ? 'No tasks in this category' : 'এই বিভাগে কোনো টাস্ক নেই')}
             </div>
@@ -438,7 +436,7 @@ export default function QuestsPage() {
                 const config = taskTypeConfig[task.task_type] || taskTypeConfig.diet;
                 const Icon = config.icon;
                 const isJustDone = justCompleted === task.id;
-                
+
                 return (
                   <motion.div
                     key={task.id}
@@ -447,20 +445,18 @@ export default function QuestsPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ delay: idx * 0.05 }}
-                    className={`health-card transition-all relative overflow-hidden ${
-                      task.completed 
-                        ? 'bg-success/5 border-success/20' 
+                    className={`health-card transition-all relative overflow-hidden ${task.completed
+                        ? 'bg-success/5 border-success/20'
                         : `hover:${config.border} hover:shadow-md`
-                    } ${isJustDone ? 'ring-2 ring-success ring-offset-2 ring-offset-background' : ''}`}
+                      } ${isJustDone ? 'ring-2 ring-success ring-offset-2 ring-offset-background' : ''}`}
                   >
                     {/* Category indicator stripe */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${
-                      task.task_type === 'exercise' ? 'bg-accent' 
-                      : task.task_type === 'diet' ? 'bg-primary' 
-                      : task.task_type === 'mindcare' ? 'bg-[hsl(270,60%,50%)]' 
-                      : task.task_type === 'water' ? 'bg-info' 
-                      : 'bg-warning'
-                    }`} />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${task.task_type === 'exercise' ? 'bg-accent'
+                        : task.task_type === 'diet' ? 'bg-primary'
+                          : task.task_type === 'mindcare' ? 'bg-[hsl(270,60%,50%)]'
+                            : task.task_type === 'water' ? 'bg-info'
+                              : 'bg-warning'
+                      }`} />
 
                     <div className="flex items-center gap-3 cursor-pointer pl-3" onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)}>
                       <motion.button
@@ -493,12 +489,11 @@ export default function QuestsPage() {
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <motion.span 
-                          className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${
-                            task.xp_earned > 0 
-                              ? 'bg-accent/10 text-accent' 
+                        <motion.span
+                          className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${task.xp_earned > 0
+                              ? 'bg-accent/10 text-accent'
                               : 'bg-warning/10 text-warning'
-                          }`}
+                            }`}
                           key={task.xp_earned}
                           initial={task.xp_earned > 0 ? { scale: 1.3 } : {}}
                           animate={{ scale: 1 }}
@@ -517,7 +512,7 @@ export default function QuestsPage() {
                     {/* Expanded details */}
                     <AnimatePresence>
                       {expandedTaskId === task.id && (
-                        <motion.div 
+                        <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
@@ -560,8 +555,8 @@ export default function QuestsPage() {
                                     className="gap-1 text-xs"
                                   >
                                     <Camera className="h-3 w-3" />
-                                    {uploadingId === task.id 
-                                      ? (lang === 'en' ? 'Uploading...' : 'আপলোড হচ্ছে...') 
+                                    {uploadingId === task.id
+                                      ? (lang === 'en' ? 'Uploading...' : 'আপলোড হচ্ছে...')
                                       : (lang === 'en' ? 'Photo Proof (+10 XP)' : 'ছবি প্রমাণ (+১০ XP)')}
                                   </Button>
                                 </>
@@ -597,7 +592,7 @@ export default function QuestsPage() {
                     {/* Completion celebration overlay */}
                     <AnimatePresence>
                       {isJustDone && (
-                        <motion.div 
+                        <motion.div
                           className="absolute inset-0 flex items-center justify-center bg-success/10 backdrop-blur-[1px] rounded-xl"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -652,9 +647,8 @@ export default function QuestsPage() {
               { xp: 15000, discount: 15 },
               { xp: 30000, discount: 20 },
             ].map(tier => (
-              <div key={tier.xp} className={`flex items-center gap-3 text-sm rounded-xl p-3 ${
-                gamification.xp >= tier.xp ? 'bg-success/10 border border-success/30' : 'bg-muted/30'
-              }`}>
+              <div key={tier.xp} className={`flex items-center gap-3 text-sm rounded-xl p-3 ${gamification.xp >= tier.xp ? 'bg-success/10 border border-success/30' : 'bg-muted/30'
+                }`}>
                 <Percent className="h-5 w-5 text-accent shrink-0" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">{tier.discount}% {lang === 'en' ? 'discount' : 'ছাড়'}</p>

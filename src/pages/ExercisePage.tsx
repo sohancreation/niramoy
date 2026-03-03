@@ -38,7 +38,7 @@ export default function ExercisePage() {
   const [latestCheckin, setLatestCheckin] = useState<any>(null);
   const [liveWorkoutOpen, setLiveWorkoutOpen] = useState(false);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   const dayOfWeek = new Date().getDay();
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -91,7 +91,7 @@ export default function ExercisePage() {
         is_active: true,
         duration_months: duration,
         start_date: today,
-        end_date: endDate.toISOString().split('T')[0],
+        end_date: endDate.toLocaleDateString('en-CA'),
         total_days_completed: 0,
         ...insertPayload,
       }).select().single();
@@ -224,305 +224,304 @@ export default function ExercisePage() {
           }}
         />
       ) : (
-      <div className="p-6 max-w-4xl mx-auto space-y-6">
-        <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
-          <Dumbbell className="h-8 w-8 text-accent" />
-          {t('exercise', lang)}
-        </h1>
+        <div className="p-6 max-w-4xl mx-auto space-y-6">
+          <h1 className="font-heading text-3xl font-bold text-foreground flex items-center gap-3">
+            <Dumbbell className="h-8 w-8 text-accent" />
+            {t('exercise', lang)}
+          </h1>
 
-        {/* Health Warnings */}
-        {healthWarning && (
-          <div className="flex flex-col gap-1 p-3 rounded-xl bg-warning/10 border border-warning/20">
-            {healthWarning.map((w, i) => (
-              <p key={i} className="text-xs text-foreground flex items-center gap-2">
-                <AlertTriangle className="h-3 w-3 text-warning flex-shrink-0" /> {w}
-              </p>
-            ))}
-          </div>
-        )}
+          {/* Health Warnings */}
+          {healthWarning && (
+            <div className="flex flex-col gap-1 p-3 rounded-xl bg-warning/10 border border-warning/20">
+              {healthWarning.map((w, i) => (
+                <p key={i} className="text-xs text-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-3 w-3 text-warning flex-shrink-0" /> {w}
+                </p>
+              ))}
+            </div>
+          )}
 
-        {/* Active Plan with Progress */}
-        {activePlan && (
-          <div className="health-card space-y-4 animate-slide-up">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
-                <Target className="h-5 w-5 text-accent" />
-                {lang === 'en' ? 'Active Plan' : 'সক্রিয় প্ল্যান'}
-                <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">
-                  {activePlan.duration_months || 1} {lang === 'en' ? 'month' : 'মাস'}
-                </span>
-              </h2>
-              <div className="flex items-center gap-2">
-                {!todayFeedbackDone && (
-                  <Button size="sm" variant="outline" onClick={() => setFeedbackOpen(true)} className="gap-1.5">
-                    <MessageSquare className="h-4 w-4" />
-                    {lang === 'en' ? 'Feedback' : 'ফিডব্যাক'}
-                  </Button>
-                )}
-                {todayFeedbackDone && (
-                  <span className="flex items-center gap-1 text-xs text-accent font-medium">
-                    <CheckCircle2 className="h-4 w-4" /> ✓
+          {/* Active Plan with Progress */}
+          {activePlan && (
+            <div className="health-card space-y-4 animate-slide-up">
+              <div className="flex items-center justify-between">
+                <h2 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                  <Target className="h-5 w-5 text-accent" />
+                  {lang === 'en' ? 'Active Plan' : 'সক্রিয় প্ল্যান'}
+                  <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">
+                    {activePlan.duration_months || 1} {lang === 'en' ? 'month' : 'মাস'}
                   </span>
-                )}
-              </div>
-            </div>
-
-            {/* Progress */}
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <LiquidProgress percent={planProgress.percent} label={motivation[lang]} sublabel={`${planProgress.completed}/${planProgress.totalDays} ${lang === 'en' ? 'days' : 'দিন'}`} color="accent" />
-              <div className="flex-1 w-full space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-heading font-bold text-foreground">{planProgress.daysLeft}</p>
-                    <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Days Left' : 'বাকি দিন'}</p>
-                  </div>
-                  <div className="text-center p-3 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-heading font-bold text-foreground">{planProgress.completed}</p>
-                    <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Completed' : 'সম্পন্ন'}</p>
-                  </div>
-                </div>
-                {/* Today's exercise progress */}
-                <div className="p-3 rounded-xl bg-accent/5 border border-accent/20">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-foreground font-medium">{lang === 'en' ? "Today's Progress" : 'আজকের অগ্রগতি'}</span>
-                    <span className="text-accent font-bold">{todayExerciseProgress}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${todayExerciseProgress}%`, background: 'linear-gradient(90deg, hsl(var(--accent)), hsl(var(--primary)))' }} />
-                  </div>
+                </h2>
+                <div className="flex items-center gap-2">
+                  {!todayFeedbackDone && (
+                    <Button size="sm" variant="outline" onClick={() => setFeedbackOpen(true)} className="gap-1.5">
+                      <MessageSquare className="h-4 w-4" />
+                      {lang === 'en' ? 'Feedback' : 'ফিডব্যাক'}
+                    </Button>
+                  )}
+                  {todayFeedbackDone && (
+                    <span className="flex items-center gap-1 text-xs text-accent font-medium">
+                      <CheckCircle2 className="h-4 w-4" /> ✓
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
 
-            {/* Motivational Banner */}
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/5 border border-accent/20">
-              <Sparkles className="h-5 w-5 text-accent flex-shrink-0 animate-pulse-soft" />
-              <p className="text-sm font-medium text-foreground">{motivation[lang]}</p>
-            </div>
+              {/* Progress */}
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <LiquidProgress percent={planProgress.percent} label={motivation[lang]} sublabel={`${planProgress.completed}/${planProgress.totalDays} ${lang === 'en' ? 'days' : 'দিন'}`} color="accent" />
+                <div className="flex-1 w-full space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <p className="text-2xl font-heading font-bold text-foreground">{planProgress.daysLeft}</p>
+                      <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Days Left' : 'বাকি দিন'}</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/50">
+                      <p className="text-2xl font-heading font-bold text-foreground">{planProgress.completed}</p>
+                      <p className="text-xs text-muted-foreground">{lang === 'en' ? 'Completed' : 'সম্পন্ন'}</p>
+                    </div>
+                  </div>
+                  {/* Today's exercise progress */}
+                  <div className="p-3 rounded-xl bg-accent/5 border border-accent/20">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-foreground font-medium">{lang === 'en' ? "Today's Progress" : 'আজকের অগ্রগতি'}</span>
+                      <span className="text-accent font-bold">{todayExerciseProgress}%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${todayExerciseProgress}%`, background: 'linear-gradient(90deg, hsl(var(--accent)), hsl(var(--primary)))' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            {/* Start Live Workout Button */}
-            {todayWorkout && !todayWorkout.isRest && (
-              <Button
-                onClick={() => setLiveWorkoutOpen(true)}
-                className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-14 text-lg font-bold animate-pulse-soft"
-              >
-                <Play className="h-6 w-6" />
-                {lang === 'en' ? '▶ Start Live Workout' : '▶ লাইভ ওয়ার্কআউট শুরু করুন'}
-              </Button>
-            )}
+              {/* Motivational Banner */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/5 border border-accent/20">
+                <Sparkles className="h-5 w-5 text-accent flex-shrink-0 animate-pulse-soft" />
+                <p className="text-sm font-medium text-foreground">{motivation[lang]}</p>
+              </div>
 
-            {/* Day Selector - Roadmap Navigation */}
-            <div className="flex items-center justify-between bg-muted/30 rounded-xl p-2">
-              <button
-                onClick={() => setSelectedDayOffset(Math.max(0, selectedDayOffset - 1))}
-                disabled={selectedDayOffset === 0}
-                className="p-2 rounded-lg hover:bg-background disabled:opacity-30 transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4 text-foreground" />
-              </button>
-              <div className="flex gap-1 overflow-x-auto">
-                {[0, 1, 2, 3, 4, 5, 6].map(offset => {
-                  const dayName = dayNames[(dayOfWeek + offset) % 7];
-                  const workout = getWorkoutForDay(offset);
-                  const isSelected = selectedDayOffset === offset;
-                  const isRest = workout?.isRest;
-                  return (
-                    <button
-                      key={offset}
-                      onClick={() => setSelectedDayOffset(offset)}
-                      className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs font-medium transition-all min-w-[52px] ${
-                        isSelected
+              {/* Start Live Workout Button */}
+              {todayWorkout && !todayWorkout.isRest && (
+                <Button
+                  onClick={() => setLiveWorkoutOpen(true)}
+                  className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-14 text-lg font-bold animate-pulse-soft"
+                >
+                  <Play className="h-6 w-6" />
+                  {lang === 'en' ? '▶ Start Live Workout' : '▶ লাইভ ওয়ার্কআউট শুরু করুন'}
+                </Button>
+              )}
+
+              {/* Day Selector - Roadmap Navigation */}
+              <div className="flex items-center justify-between bg-muted/30 rounded-xl p-2">
+                <button
+                  onClick={() => setSelectedDayOffset(Math.max(0, selectedDayOffset - 1))}
+                  disabled={selectedDayOffset === 0}
+                  className="p-2 rounded-lg hover:bg-background disabled:opacity-30 transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4 text-foreground" />
+                </button>
+                <div className="flex gap-1 overflow-x-auto">
+                  {[0, 1, 2, 3, 4, 5, 6].map(offset => {
+                    const dayName = dayNames[(dayOfWeek + offset) % 7];
+                    const workout = getWorkoutForDay(offset);
+                    const isSelected = selectedDayOffset === offset;
+                    const isRest = workout?.isRest;
+                    return (
+                      <button
+                        key={offset}
+                        onClick={() => setSelectedDayOffset(offset)}
+                        className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs font-medium transition-all min-w-[52px] ${isSelected
                           ? 'gradient-primary text-primary-foreground shadow-md'
                           : isRest
                             ? 'bg-muted/50 text-muted-foreground hover:bg-muted'
                             : 'hover:bg-background text-foreground'
-                      }`}
-                    >
-                      <span className="font-bold">{dayName.slice(0, 3)}</span>
-                      <span className="text-[10px] mt-0.5">
-                        {offset === 0 ? (lang === 'en' ? 'Today' : 'আজ') : isRest ? '😴' : '💪'}
+                          }`}
+                      >
+                        <span className="font-bold">{dayName.slice(0, 3)}</span>
+                        <span className="text-[10px] mt-0.5">
+                          {offset === 0 ? (lang === 'en' ? 'Today' : 'আজ') : isRest ? '😴' : '💪'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => setSelectedDayOffset(Math.min(6, selectedDayOffset + 1))}
+                  disabled={selectedDayOffset === 6}
+                  className="p-2 rounded-lg hover:bg-background disabled:opacity-30 transition-colors"
+                >
+                  <ChevronRight className="h-4 w-4 text-foreground" />
+                </button>
+              </div>
+
+              {/* Selected Day's Workout */}
+              {selectedWorkout && (
+                <div className="space-y-3">
+                  <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                    {selectedWorkout.isRest ? <BedDouble className="h-5 w-5 text-muted-foreground" /> : <Dumbbell className="h-5 w-5 text-accent" />}
+                    {selectedDayName}
+                    {!isToday && (
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                        {lang === 'en' ? 'Upcoming' : 'আসছে'}
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => setSelectedDayOffset(Math.min(6, selectedDayOffset + 1))}
-                disabled={selectedDayOffset === 6}
-                className="p-2 rounded-lg hover:bg-background disabled:opacity-30 transition-colors"
-              >
-                <ChevronRight className="h-4 w-4 text-foreground" />
-              </button>
-            </div>
-
-            {/* Selected Day's Workout */}
-            {selectedWorkout && (
-              <div className="space-y-3">
-                <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
-                  {selectedWorkout.isRest ? <BedDouble className="h-5 w-5 text-muted-foreground" /> : <Dumbbell className="h-5 w-5 text-accent" />}
-                  {selectedDayName}
-                  {!isToday && (
-                    <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                      {lang === 'en' ? 'Upcoming' : 'আসছে'}
-                    </span>
-                  )}
-                  {selectedWorkout.isRest && <span className="health-badge bg-muted text-muted-foreground">Rest Day</span>}
-                </h3>
-                {!selectedWorkout.isRest && selectedWorkout.exercises?.map((ex: any, i: number) => (
-                  isToday ? (
-                    <ExerciseTimer
-                      key={i}
-                      exerciseName={ex.name}
-                      sets={ex.sets}
-                      lang={lang}
-                      onComplete={() => handleExerciseComplete(ex.name)}
-                    />
-                  ) : (
-                    <div key={i} className="rounded-xl border border-border p-4 bg-card">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{ex.name}</p>
-                          <p className="text-xs text-muted-foreground">{ex.sets}</p>
-                        </div>
-                        <span className="flex items-center gap-1 text-destructive text-xs"><Flame className="h-3 w-3" /> {ex.calories} cal</span>
-                      </div>
-                    </div>
-                  )
-                ))}
-                {selectedWorkout.isRest && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <BedDouble className="h-12 w-12 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">{lang === 'en' ? 'Rest and recover! 🧘' : 'বিশ্রাম নিন! 🧘'}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Generate New Plan */}
-        <div className="health-card space-y-4">
-          <h2 className="font-heading font-semibold text-foreground">
-            {activePlan ? (lang === 'en' ? 'Generate New Plan' : 'নতুন প্ল্যান') : (lang === 'en' ? 'Create Your Plan' : 'আপনার প্ল্যান তৈরি করুন')}
-          </h2>
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-accent" />
-              {lang === 'en' ? 'Plan Duration' : 'প্ল্যানের সময়কাল'}
-            </label>
-            <div className="flex gap-2">
-              {([1, 3] as Duration[]).map(d => {
-                const disabled = tier === 'free' && d > 1;
-                return (
-                <button key={d} onClick={() => !disabled && setDuration(d)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${duration === d ? 'gradient-primary text-primary-foreground' : disabled ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
-                >{d} {lang === 'en' ? 'Month' : 'মাস'} {disabled ? '🔒' : ''}</button>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('goal', lang)}</label>
-            <ToggleGroup options={['weightLoss', 'maintenance', 'muscleGain']} value={goal} onChange={setGoal} translationKeys={['weightLoss', 'maintenance', 'muscleGain']} />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('fitnessLevel', lang)}</label>
-            <ToggleGroup options={['beginner', 'intermediate', 'advanced']} value={level} onChange={setLevel} translationKeys={['beginner', 'intermediate', 'advanced']} />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('equipment', lang)}</label>
-            <ToggleGroup options={['none', 'home', 'gym']} value={equip} onChange={setEquip} translationKeys={['none', 'home', 'gym']} />
-          </div>
-          <Button onClick={handleGenerate} className="gradient-primary border-0 text-primary-foreground">
-            {t('generatePlan', lang)}
-          </Button>
-        </div>
-
-        {/* Generated Plan Preview */}
-        {plan && (
-          <div className="space-y-4 animate-slide-up">
-            <div className="grid gap-4">
-              {plan.map(day => (
-                <div key={day.day} className={`health-card ${day.isRest ? 'bg-muted/50' : ''}`}>
-                  <h3 className="font-heading font-semibold text-foreground mb-3 flex items-center gap-2">
-                    {day.isRest ? <BedDouble className="h-5 w-5 text-muted-foreground" /> : <Dumbbell className="h-5 w-5 text-accent" />}
-                    {day.day}
-                    {day.isRest && <span className="health-badge bg-muted text-muted-foreground">Rest Day</span>}
+                    )}
+                    {selectedWorkout.isRest && <span className="health-badge bg-muted text-muted-foreground">Rest Day</span>}
                   </h3>
-                  {!day.isRest && (
-                    <div className="space-y-2">
-                      {day.exercises.map((ex, i) => (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <span className="text-foreground">{ex.name}</span>
-                          <div className="flex items-center gap-3">
-                            <span className="text-muted-foreground">{ex.sets}</span>
-                            <span className="flex items-center gap-1 text-destructive text-xs"><Flame className="h-3 w-3" /> {ex.calories}</span>
+                  {!selectedWorkout.isRest && selectedWorkout.exercises?.map((ex: any, i: number) => (
+                    isToday ? (
+                      <ExerciseTimer
+                        key={i}
+                        exerciseName={ex.name}
+                        sets={ex.sets}
+                        lang={lang}
+                        onComplete={() => handleExerciseComplete(ex.name)}
+                      />
+                    ) : (
+                      <div key={i} className="rounded-xl border border-border p-4 bg-card">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">{ex.name}</p>
+                            <p className="text-xs text-muted-foreground">{ex.sets}</p>
                           </div>
+                          <span className="flex items-center gap-1 text-destructive text-xs"><Flame className="h-3 w-3" /> {ex.calories} cal</span>
                         </div>
-                      ))}
+                      </div>
+                    )
+                  ))}
+                  {selectedWorkout.isRest && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <BedDouble className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                      <p className="text-sm">{lang === 'en' ? 'Rest and recover! 🧘' : 'বিশ্রাম নিন! 🧘'}</p>
                     </div>
                   )}
                 </div>
-              ))}
+              )}
             </div>
-            <Button onClick={handleStartPlan} className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-12 text-base">
-              <Play className="h-5 w-5" />
-              {lang === 'en' ? `Start ${duration}-Month Plan` : `${duration} মাসের প্ল্যান শুরু করুন`}
+          )}
+
+          {/* Generate New Plan */}
+          <div className="health-card space-y-4">
+            <h2 className="font-heading font-semibold text-foreground">
+              {activePlan ? (lang === 'en' ? 'Generate New Plan' : 'নতুন প্ল্যান') : (lang === 'en' ? 'Create Your Plan' : 'আপনার প্ল্যান তৈরি করুন')}
+            </h2>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-accent" />
+                {lang === 'en' ? 'Plan Duration' : 'প্ল্যানের সময়কাল'}
+              </label>
+              <div className="flex gap-2">
+                {([1, 3] as Duration[]).map(d => {
+                  const disabled = tier === 'free' && d > 1;
+                  return (
+                    <button key={d} onClick={() => !disabled && setDuration(d)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${duration === d ? 'gradient-primary text-primary-foreground' : disabled ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
+                    >{d} {lang === 'en' ? 'Month' : 'মাস'} {disabled ? '🔒' : ''}</button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('goal', lang)}</label>
+              <ToggleGroup options={['weightLoss', 'maintenance', 'muscleGain']} value={goal} onChange={setGoal} translationKeys={['weightLoss', 'maintenance', 'muscleGain']} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('fitnessLevel', lang)}</label>
+              <ToggleGroup options={['beginner', 'intermediate', 'advanced']} value={level} onChange={setLevel} translationKeys={['beginner', 'intermediate', 'advanced']} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('equipment', lang)}</label>
+              <ToggleGroup options={['none', 'home', 'gym']} value={equip} onChange={setEquip} translationKeys={['none', 'home', 'gym']} />
+            </div>
+            <Button onClick={handleGenerate} className="gradient-primary border-0 text-primary-foreground">
+              {t('generatePlan', lang)}
             </Button>
           </div>
-        )}
 
-        {/* Badges Section */}
-        {activePlan && (
-          <div className="health-card space-y-4">
-            <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
-              <Zap className="h-5 w-5 text-warning" />
-              {lang === 'en' ? 'Fitness Badges' : 'ফিটনেস ব্যাজ'}
-            </h3>
-            <BadgesDisplay
-              xp={0}
-              streak={0}
-              totalWorkouts={planProgress.completed}
-              totalCaloriesBurned={0}
-              lang={lang}
-            />
-          </div>
-        )}
-
-        <PlanFeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} onSubmit={handleFeedback} planType="exercise" lang={lang} />
-
-        {/* Live Workout Modal */}
-        <AnimatePresence>
-          {liveWorkoutOpen && todayWorkout && !todayWorkout.isRest && (
-            <LiveWorkoutModal
-              exercises={todayWorkout.exercises || []}
-              onComplete={async (totalCalories, completedExercises) => {
-                setLiveWorkoutOpen(false);
-                // Mark all exercises as completed
-                const allNames = new Set(completedExercises);
-                setCompletedExercises(allNames);
-                try {
-                  if (authUser && activePlan) {
-                    await supabase.from('plan_progress').upsert({
-                      user_id: authUser.id,
-                      plan_id: activePlan.id,
-                      progress_date: today,
-                      completed_items: completedExercises as any,
-                    }, { onConflict: 'plan_id,progress_date' });
-                    await supabase.from('saved_plans').update({
-                      total_days_completed: (activePlan.total_days_completed || 0) + 1,
-                    }).eq('id', activePlan.id);
-                    setActivePlan((prev: any) => ({ ...prev, total_days_completed: (prev.total_days_completed || 0) + 1 }));
-                    toast.success(lang === 'en' ? `Workout complete! 🔥 ${totalCalories} cal burned!` : `ব্যায়াম সম্পন্ন! 🔥 ${totalCalories} ক্যাল বার্ন!`);
-                  }
-                } catch (e) { console.error(e); }
-              }}
-              onClose={() => setLiveWorkoutOpen(false)}
-              lang={lang}
-            />
+          {/* Generated Plan Preview */}
+          {plan && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="grid gap-4">
+                {plan.map(day => (
+                  <div key={day.day} className={`health-card ${day.isRest ? 'bg-muted/50' : ''}`}>
+                    <h3 className="font-heading font-semibold text-foreground mb-3 flex items-center gap-2">
+                      {day.isRest ? <BedDouble className="h-5 w-5 text-muted-foreground" /> : <Dumbbell className="h-5 w-5 text-accent" />}
+                      {day.day}
+                      {day.isRest && <span className="health-badge bg-muted text-muted-foreground">Rest Day</span>}
+                    </h3>
+                    {!day.isRest && (
+                      <div className="space-y-2">
+                        {day.exercises.map((ex, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-foreground">{ex.name}</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-muted-foreground">{ex.sets}</span>
+                              <span className="flex items-center gap-1 text-destructive text-xs"><Flame className="h-3 w-3" /> {ex.calories}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <Button onClick={handleStartPlan} className="w-full gradient-primary border-0 text-primary-foreground gap-2 h-12 text-base">
+                <Play className="h-5 w-5" />
+                {lang === 'en' ? `Start ${duration}-Month Plan` : `${duration} মাসের প্ল্যান শুরু করুন`}
+              </Button>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
+
+          {/* Badges Section */}
+          {activePlan && (
+            <div className="health-card space-y-4">
+              <h3 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                <Zap className="h-5 w-5 text-warning" />
+                {lang === 'en' ? 'Fitness Badges' : 'ফিটনেস ব্যাজ'}
+              </h3>
+              <BadgesDisplay
+                xp={0}
+                streak={0}
+                totalWorkouts={planProgress.completed}
+                totalCaloriesBurned={0}
+                lang={lang}
+              />
+            </div>
+          )}
+
+          <PlanFeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} onSubmit={handleFeedback} planType="exercise" lang={lang} />
+
+          {/* Live Workout Modal */}
+          <AnimatePresence>
+            {liveWorkoutOpen && todayWorkout && !todayWorkout.isRest && (
+              <LiveWorkoutModal
+                exercises={todayWorkout.exercises || []}
+                onComplete={async (totalCalories, completedExercises) => {
+                  setLiveWorkoutOpen(false);
+                  // Mark all exercises as completed
+                  const allNames = new Set(completedExercises);
+                  setCompletedExercises(allNames);
+                  try {
+                    if (authUser && activePlan) {
+                      await supabase.from('plan_progress').upsert({
+                        user_id: authUser.id,
+                        plan_id: activePlan.id,
+                        progress_date: today,
+                        completed_items: completedExercises as any,
+                      }, { onConflict: 'plan_id,progress_date' });
+                      await supabase.from('saved_plans').update({
+                        total_days_completed: (activePlan.total_days_completed || 0) + 1,
+                      }).eq('id', activePlan.id);
+                      setActivePlan((prev: any) => ({ ...prev, total_days_completed: (prev.total_days_completed || 0) + 1 }));
+                      toast.success(lang === 'en' ? `Workout complete! 🔥 ${totalCalories} cal burned!` : `ব্যায়াম সম্পন্ন! 🔥 ${totalCalories} ক্যাল বার্ন!`);
+                    }
+                  } catch (e) { console.error(e); }
+                }}
+                onClose={() => setLiveWorkoutOpen(false)}
+                lang={lang}
+              />
+            )}
+          </AnimatePresence>
+        </div>
       )}
     </AppLayout>
   );
