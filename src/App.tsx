@@ -42,6 +42,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || undefined;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -51,7 +53,7 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter basename="/niramoy">
+              <BrowserRouter basename={basename}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
                   <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />

@@ -21,8 +21,12 @@ const UserContext = createContext<UserContextType>({ user: null, setUser: () => 
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('hm-user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('hm-user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   const setUser = (u: UserProfile) => {
